@@ -5,7 +5,8 @@
 
 #include <kernel/kernel_ftab.h> /* ftab_init, temporary */
 
-extern int main(void);
+__attribute__((weak))
+int main() { return 0; }
 
 __attribute__((noreturn))
 void kernel_main(const char *cmdline) {
