@@ -9,6 +9,12 @@
  */
 extern void kernel_main(const char *cmdline);
 
+/**
+ * Provided by NXP startup code. Ensures SystemCoreClock (global var) is
+ * correct.
+ */
+extern void SystemCoreClockUpdate(void);
+
 static const char kernel_commandline[] = "";
 
 
@@ -16,6 +22,7 @@ __attribute__((noreturn))
 void bootloader_entry() {
     // if there are pre-kernel drivers that need initialization, those would
     // go here.
+    SystemCoreClockUpdate();
 
     // branch to the entry point
     kernel_main(kernel_commandline);
