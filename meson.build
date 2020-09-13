@@ -12,10 +12,11 @@ c_sources = [
     'src/kernel/kernel_support.c',
     'src/kernel/environment.c',
     'src/kernel/abort.c',
+    'src/kernel/boot.c',
+    'src/kernel/kernel_main.c',
     'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
-    'src/drivers/uart.c',
-    'src/programs/dma.c'
+    'src/drivers/uart.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
@@ -27,6 +28,9 @@ asm_sources = [
 ## project setup
 # CPU to use (default: on FRDM-K64F)
 add_project_arguments('-DCPU_MK64FN1M0VLL12', language: 'c')
+
+# Set the entry point to be bootloader_entry
+add_project_arguments('-D__START=bootloader_entry', language: 'c')
 
 # use default clock?
 # This is Kinetis-setup specific, and configures the Freescale MCG on boot.
