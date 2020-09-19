@@ -15,7 +15,8 @@ c_sources = [
     'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
     'src/drivers/uart.c',
-    'src/programs/dma.c'
+    'src/drivers/i2c.c',
+    'src/programs/main.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
