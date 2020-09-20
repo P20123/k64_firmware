@@ -89,7 +89,7 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
     base->C1 |= I2C_C1_IICEN_MASK;
 }
 
-uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t *received_data) {
+uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
     /* get the channel and the base from the globals */
     volatile I2C_Channel *ch = &i2c_channels[ch_num];
     I2C_Type *base = (I2C_Type *)i2c_bases[ch_num];
@@ -109,6 +109,8 @@ uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t 
     ch->received_data = received_data;
     ch->status = I2C_BUSY;
     ch->txrx = I2C_WRITING;
+    ch->callback = callback;
+    ch->args = args;
 
     /* clear IICIF by writing a 1 to it */
     base->S |= I2C_S_IICIF_MASK;
@@ -264,7 +266,12 @@ i2c_isr_stop:
     /* generate a STOP, switch to RX, disable interrupts */
     base->C1 &= ~(I2C_C1_MST_MASK | I2C_C1_TXAK_MASK | I2C_C1_IICIE_MASK);
 
-    //TODO ADD CALLBACK?
+    /* call the callback function on success if it exists */
+    if(ch->callback) {
+        ch->callback(ch->args);
+    }
+
+    /* sest channel back to available */
     ch->status = I2C_AVAILABLE;
     goto i2c_isr_exit;
 

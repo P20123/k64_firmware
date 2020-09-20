@@ -36,6 +36,8 @@ typedef struct {
     uint8_t reads_ahead;
     uint8_t txrx;
     uint8_t status;
+    void (*callback)(void *);
+    void *args;
 } I2C_Channel;
 
 /**
@@ -51,7 +53,7 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz);
 /**
  * function to send a sequence using the i2c module
  */
-uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t *received_data);
+uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args);
 
 
 /**

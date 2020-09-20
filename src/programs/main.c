@@ -8,7 +8,12 @@
 #include <string.h>
 #include <MK64F12.h>
 
-#define PRINT(x) write(uart0_fd, x, strlen(x));
+#define PRINT(x) write(0, x, strlen(x));
+
+
+void callback_test(void *args) {
+    PRINT("Hello")
+}
 
 int main(void) {
     ftab_init();
@@ -48,7 +53,8 @@ int main(void) {
     PORTE->PCR[25] |= PORT_PCR_MUX(5);
 
     // send a sequence :-)
-    i2c_send_seq(0, seq, 6, &data);
+    PRINT("STUFF")
+    i2c_send_seq(0, seq, 6, &data, &callback_test, 0);
 
     for(;;);
     return 0;
