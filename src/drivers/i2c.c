@@ -11,7 +11,7 @@ static const uint16_t SCL_LUT[] = {
     640, 768, 896, 1024, 1152, 1280, 1536, 1920, 1280, 1536, 1792, 2048, 2304, 2560, 3072, 3840};
 
 /* global variable to store the channel parameters */
-volatile I2C_Channel i2c_channels[I2C_NUM_DEVICES];
+volatile I2C_Channel i2c_chs[I2C_NUM_DEVICES];
 
 /* global variable to store the base pointers */
 static I2C_Type *i2c_bases[] = I2C_BASE_PTRS;
@@ -35,6 +35,14 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
             SIM->SCGC1 |= SIM_SCGC1_I2C2_MASK;
             break;
     }
+
+    /* reset the module */
+    base->A1 = 0;
+    base->F = 0;
+    base->C1 = 0;
+    base->S = 0xFFu;
+    base->C2 = 0;
+    base->RA = 0;
 
     /* disable i2c for config and clear all status flags */
     base->C1 &= ~I2C_C1_IICEN_MASK;
@@ -87,11 +95,16 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
 
     /* enable i2c */
     base->C1 |= I2C_C1_IICEN_MASK;
+
+    /* initialize the channels to be available */
+    for(int i = 0; i < I2C_NUM_DEVICES; i++) {
+        i2c_chs[i].status = I2C_AVAILABLE;
+    }
 }
 
-uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
+uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
     /* get the channel and the base from the globals */
-    volatile I2C_Channel *ch = &i2c_channels[ch_num];
+    volatile I2C_Channel *ch = &i2c_chs[ch_num];
     I2C_Type *base = (I2C_Type *)i2c_bases[ch_num];
 
     /* initialize the errno to zero */
@@ -127,7 +140,8 @@ uint32_t i2c_send_seq(uint32_t ch_num, uint16_t *seq, uint32_t seq_len, uint8_t 
     }
 
     /* write the address */
-    base->D = *ch->seq++;
+    base->D = (*ch->seq).addr;
+    ch->seq++;
     goto exit;
 
 i2c_send_seq_cleanup:
@@ -141,7 +155,7 @@ exit:
 
 uint32_t i2c_irq_handler(uint8_t ch_num) {
     /* get the channel and the base from the globals */
-    volatile I2C_Channel *ch = &i2c_channels[ch_num];
+    volatile I2C_Channel *ch = &i2c_chs[ch_num];
     I2C_Type *base = (I2C_Type *)i2c_bases[ch_num];
 
     /* initialize errno to zero */
@@ -173,14 +187,14 @@ uint32_t i2c_irq_handler(uint8_t ch_num) {
                 *ch->received_data++ = base->D;
 
                 /* if repeated start */
-                if((ch->seq < ch->seq_end) && (*ch->seq == I2C_RESTART)) {
+                if((ch->seq < ch->seq_end) && ((*ch->seq).opcode == I2C_RESTART)) {
                     /* generate a repeated start! */
                     base->C1 |= I2C_C1_RSTA_MASK;
 
                     /* address write post repeated start */
                     ch->txrx = I2C_WRITING;
                     ch->seq++;
-                    base->D = *ch->seq;
+                    base->D = (*ch->seq).addr;
                 }
                 /* no repeated start */
                 else {
@@ -213,18 +227,18 @@ uint32_t i2c_irq_handler(uint8_t ch_num) {
         }
 
         /* check if we have a restart */
-        if(*ch->seq == I2C_RESTART) {
+        if((*ch->seq).opcode == I2C_RESTART) {
             /* generate repeated start and ensure TX */
             base->C1 |= (I2C_C1_RSTA_MASK | I2C_C1_TX_MASK);
 
             /* address write post repeated start */
             ch->seq++;
-            base->D = *ch->seq;
+            base->D = (*ch->seq).addr;
         }
         /* not a repeated start */
         else {
             /* handle a read */
-            if(*ch->seq == I2C_READ) {
+            if((*ch->seq).opcode == I2C_READ) {
                 /* set channel status to read */
                 ch->txrx = I2C_READING;
 
@@ -233,7 +247,7 @@ uint32_t i2c_irq_handler(uint8_t ch_num) {
 
                 /* parse the number of reads */
                 while(((ch->seq + ch->reads_ahead) < ch->seq_end) &&
-                        (*(ch->seq + ch->reads_ahead) == I2C_READ)) {
+                        ((*(ch->seq + ch->reads_ahead)).opcode == I2C_READ)) {
                     ch->reads_ahead++;
                 }
 
@@ -255,7 +269,7 @@ uint32_t i2c_irq_handler(uint8_t ch_num) {
             }
             /* handle a write */
             else {
-                base->D = *ch->seq;
+                base->D = (*ch->seq).value;
             }
         }
     }
@@ -268,7 +282,7 @@ i2c_isr_stop:
 
     /* call the callback function on success if it exists */
     if(ch->callback) {
-        ch->callback(ch->args);
+        (*ch->callback)(ch->args);
     }
 
     /* sest channel back to available */
