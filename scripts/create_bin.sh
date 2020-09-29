@@ -1,2 +1,2 @@
 #!/bin/sh
-arm-none-eabi-objcopy -O binary $1 $2
+arm-none-eabi-objcopy -O binary -R debug_strs $1 $2

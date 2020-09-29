@@ -1,0 +1,3 @@
+[submodule "firmware_bintools"]
+	path = tools/firmware_bintools
+	url = https://github.com/P20123/firmware_bintools

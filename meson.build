@@ -1,7 +1,8 @@
 project('k64_base', 'c')
 
 # dependencies
-dependencies = []
+dep_txpc = dependency('tinyxpc', fallback: ['tinyxpc', 'dep_txpc'])
+dependencies = [dep_txpc]
 
 # Project include path.
 local_headers = ['include']
@@ -15,7 +16,10 @@ c_sources = [
     'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
     'src/drivers/uart.c',
-    'src/programs/dma.c'
+    'src/util/fmtstr.c',
+    'src/libc/string.c',
+    'src/programs/txpc_test.c',
+    'src/programs/xpc_relay.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
@@ -23,6 +27,8 @@ asm_sources = [
     'src/asmlib/queue.s',
     'src/asmlib/uart_driver.s'
 ]
+
+add_project_arguments(['-ggdb3'], language: 'c')
 
 ## project setup
 # CPU to use (default: on FRDM-K64F)
@@ -65,5 +71,26 @@ main_binary = custom_target(
     command: ['@SOURCE_DIR@/scripts/create_bin.sh', 'main.elf', '@OUTPUT@'],
     depends: main,
     output: 'main.bin',
+    build_by_default: true
+)
+debug_strs = custom_target(
+    'strings.bin',
+    command: [
+        'arm-none-eabi-objcopy', '-O',  'binary',
+        '-j', '.rodata', 'main.elf', '@OUTPUT@'
+    ],
+    depends: main,
+    output: 'strings.bin',
+    build_by_default: true
+)
+
+debug_indices = custom_target(
+    'debug_indices.bin',
+    command: [
+        'arm-none-eabi-objcopy', '-O', 'binary',
+        '-j', 'debug_strs', 'main.elf', '@OUTPUT@'
+    ],
+    depends: main,
+    output: 'debug_indices.bin',
     build_by_default: true
 )

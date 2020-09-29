@@ -11,7 +11,7 @@ start_oocd() {
 
 stop_oocd() {
     if [ -e $PRJ_ROOT/openocd.pid ]; then
-        (echo "shutdown"; sleep 1; echo "quit") | telnet localhost 4444 > /dev/null 2>&1
+        (echo "shutdown"; sleep 1; echo "exit") | telnet localhost 4444 > /dev/null 2>&1
         rm $PRJ_ROOT/openocd.pid
     fi
 }

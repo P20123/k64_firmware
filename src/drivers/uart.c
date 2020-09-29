@@ -118,14 +118,14 @@ int uart_init(uart_config conf) {
         // turn on rx, tx, rx interrupt, tx interrupt
         conf.uart_base->C2 |= UART_C2_RE_MASK | UART_C2_TE_MASK | UART_C2_RIE_MASK | UART_C2_TIE_MASK;
 
-        /*
-         *NVIC_EnableIRQ(conf.irqn);
-         *NVIC->IP[conf.irqn] = conf.priority;
-         */
+        NVIC_EnableIRQ(conf.irqn);
+        NVIC->IP[conf.irqn] = conf.priority;
         // generate DMA requests instead of interrupts
-        conf.uart_base->C5 |= UART_C5_TDMAS_MASK;
+        /*
+         *conf.uart_base->C5 |= UART_C5_TDMAS_MASK;
+         */
         // enable tx fifo
-        conf.uart_base->PFIFO |= UART_PFIFO_TXFE_MASK;
+        /*conf.uart_base->PFIFO |= UART_PFIFO_TXFE_MASK;*/
         asm("cpsie i");
     }
     else {
@@ -143,10 +143,12 @@ int uart_init(uart_config conf) {
 }
 
 unsigned int uart_write(uart_context *context, void *buf, unsigned int bytes) {
-    int buf_init = buf;
-    while(*((char*)buf++) && bytes >= 0) {
-        putchar(*(((char*)buf)-1), context->txq, context->uart_base);
-        bytes--;
+    void *buf_init = buf;
+    int signed_bytes = bytes;
+    while(signed_bytes > 0) {
+        putchar(*((char*)buf), context->txq, context->uart_base);
+        signed_bytes--;
+        (char*)buf++;
     }
     return buf - buf_init;
 }

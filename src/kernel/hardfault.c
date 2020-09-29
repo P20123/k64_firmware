@@ -38,8 +38,9 @@ static void block_wait(int millis) {
 	}
 }
 
-
+#ifdef __GNUC__
 __attribute__((naked))
+#endif
 void HardFault_Handler(void) {
     __asm volatile (
      " movs r0,#4       \n"
