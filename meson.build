@@ -1,7 +1,9 @@
 project('k64_base', 'c')
 
 # dependencies
-dependencies = []
+dep_txpc = dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])
+dep_msgpack = subproject('cwpack').get_variable('dep_cwpack')
+dependencies = [dep_txpc, dep_msgpack]
 
 # Project include path.
 local_headers = ['include']
@@ -11,12 +13,15 @@ c_sources = [
     'src/kernel/hardfault.c',
     'src/kernel/kernel_support.c',
     'src/kernel/environment.c',
-    'src/kernel/abort.c',
+    'src/kernel/hardfault.c',
+    #'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
-    'src/kernel/sbrk.c',
+    #'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
-    'src/drivers/uart.c'
+    'src/drivers/uart.c',
+    'src/libc/string.c',
+    'src/programs/xpc_main.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
@@ -69,5 +74,26 @@ main_binary = custom_target(
     command: ['@SOURCE_DIR@/scripts/create_bin.sh', 'main.elf', '@OUTPUT@'],
     depends: main,
     output: 'main.bin',
+    build_by_default: true
+)
+debug_strs = custom_target(
+    'strings.bin',
+    command: [
+        'arm-none-eabi-objcopy', '-O',  'binary',
+        '-j', '.rodata', 'main.elf', '@OUTPUT@'
+    ],
+    depends: main,
+    output: 'strings.bin',
+    build_by_default: true
+)
+
+debug_indices = custom_target(
+    'debug_indices.bin',
+    command: [
+        'arm-none-eabi-objcopy', '-O', 'binary',
+        '-j', 'debug_strs', 'main.elf', '@OUTPUT@'
+    ],
+    depends: main,
+    output: 'debug_indices.bin',
     build_by_default: true
 )

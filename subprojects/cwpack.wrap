@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/clwi/CWPack
+revision = master
+patch_directory = cwpack-meson
+
+[provide]
+dependency-names = cwpack
