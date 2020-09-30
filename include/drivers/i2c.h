@@ -11,7 +11,8 @@
 #define I2C_WRITING 0
 #define I2C_READING 1
 
-#define I2C_WRITE_ADDR(x)   (i2c_seq_t){.opcode=I2C_WRITE, .addr=x}
+#define I2C_WRITE_ADDR(x)   (i2c_seq_t){.opcode=I2C_WRITE, .addr=(x << 1)}
+#define I2C_READ_ADDR(x)    (i2c_seq_t){.opcode=I2C_WRITE, .addr=(x << 1) | 1}
 #define I2C_WRITE_REG(x)    (i2c_seq_t){.opcode=I2C_WRITE, .reg=x}
 #define I2C_WRITE_VALUE(x)  (i2c_seq_t){.opcode=I2C_WRITE, .value=x}
 #define I2C_SEND_READ       (i2c_seq_t){.opcode=I2C_READ}
