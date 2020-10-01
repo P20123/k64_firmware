@@ -1,0 +1,9 @@
+[submodule "firmware_bintools"]
+	path = tools/firmware_bintools
+	url = https://github.com/P20123/firmware_bintools
+[submodule "tinyxpc"]
+	path = subprojects/tinyxpc
+	url = https://github.com/PyroAVR/tinyxpc
+[submodule "base_queue"]
+	path = subprojects/base_queue
+	url = https://github.com/P20123/base_queue
