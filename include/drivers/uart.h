@@ -1,5 +1,6 @@
 #pragma once
 #include <MK64F12.h>
+#include <queue/queue.h>
 // fun fact: we don't actually use DMA.  It's single-character interrupts.
 //#define FEATURE_UART_DMA // only targeting k64 right now, so yes.
 
@@ -27,19 +28,6 @@ typedef struct {
     uint8_t irqn;
     uint8_t priority;
 } uart_config;
-
-
-/**
- * Software Queue written for CMPE-250.  These are the fields in a C struct.
- */
-typedef struct {
-    char *in_ptr;
-    char *out_ptr;
-    char *buf_start;
-    char *buf_past;
-    char buf_size;
-    char num_enqd;
-} queue_t;
 
 typedef struct {
     UART_Type *uart_base;

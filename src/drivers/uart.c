@@ -8,32 +8,40 @@
 #include <MK64F12.h>
 #include <drivers/uart.h>
 #include <kernel/kernel_ftab.h>
+#include <queue/queue.h>
+#include <stdbool.h>
+#include <kernel/abort.h>
 
 // this file targets only MK64F12, so we can statically alloc 6 uart_contexts.
-char txq_headers[6][18];
-char rxq_headers[6][18];
-char txqs[6][255];
-char rxqs[6][255];
+/*
+ *char txq_headers[6][18];
+ *char rxq_headers[6][18];
+ */
+queue_t txq_headers[6];
+queue_t rxq_headers[6];
+volatile char txqs[6][255];
+volatile char rxqs[6][255];
+// currently active uart in handler
+volatile int which_uart;
+volatile bool isr_active;
 // for the interrupt handler - each one gets accessed by the isr when an
 // appropriate interrupt triggers for that UART.
 uart_context contexts[6] = {
-    {UART0, txq_headers[0], rxq_headers[0]},
-    {UART1, txq_headers[1], rxq_headers[1]},
-    {UART2, txq_headers[2], rxq_headers[2]},
-    {UART3, txq_headers[3], rxq_headers[3]},
-    {UART4, txq_headers[4], rxq_headers[4]},
-    {UART5, txq_headers[5], rxq_headers[5]}
+    {UART0, &txq_headers[0], &rxq_headers[0]},
+    {UART1, &txq_headers[1], &rxq_headers[1]},
+    {UART2, &txq_headers[2], &rxq_headers[2]},
+    {UART3, &txq_headers[3], &rxq_headers[3]},
+    {UART4, &txq_headers[4], &rxq_headers[4]},
+    {UART5, &txq_headers[5], &rxq_headers[5]}
 };
 
 const void * uart_contexts_address = &contexts[0];
 
 // prototypes
-unsigned int uart_write(uart_context *context, void *buf, unsigned int bytes);
-unsigned int uart_read(uart_context *context, void *buf, unsigned int bytes);
+unsigned int uart_write(uart_context *context, char *buf, unsigned int bytes);
+unsigned int uart_read(uart_context *context, char *buf, unsigned int bytes);
 unsigned int uart_close(uart_context *context);
-
-// uart assembly routines
-char getchar(char *rxq);
+void uart_isr(void);
 
 int uart_init(uart_config conf) {
     //define variables for baud rate and baud rate fine adjust
@@ -103,8 +111,11 @@ int uart_init(uart_config conf) {
                 (conf.uart_base == UART3)? 3:
                 (conf.uart_base == UART4)? 4:5;
 
-    init_queue(&txqs[which], &txq_headers[which], 255);
-    init_queue(&rxqs[which], &rxq_headers[which], 255);
+    queue_init(&txq_headers[which], &txqs[which], 255);
+    queue_init(&rxq_headers[which], &rxqs[which], 255);
+    // make isr available
+    which_uart = 0;
+    isr_active = false;
     //Enable transmitter and receiver of UART (and interrupts)
     if(conf.configure_interrupts > 0) {
         asm("cpsid i");
@@ -130,7 +141,6 @@ int uart_init(uart_config conf) {
         conf.uart_base->C2 |= UART_C2_RE_MASK | UART_C2_TE_MASK;
     }
 
-            
     return ftab_open((ftab_entry_t){
             .context = (void*)&contexts[which],
             .write = uart_write,
@@ -140,43 +150,67 @@ int uart_init(uart_config conf) {
     );
 }
 
-unsigned int uart_write(uart_context *context, void *buf, unsigned int bytes) {
-    int buf_init = buf;
-    while(*((char*)buf++) && bytes >= 0) {
-        putchar(*(((char*)buf)-1), context->txq, context->uart_base);
-        bytes--;
-    }
-    return buf - buf_init;
-}
-
-unsigned int uart_read(uart_context *context, void *buf, unsigned int bytes) {
-    int bytes_read = 0;
+unsigned int uart_write(uart_context *context, char *buf, unsigned int bytes) {
+    unsigned int bytes_written = 0;
     if(bytes == 0) {
-        bytes_read = available(context->rxq);
+        bytes_written = context->txq->cap - context->txq->size;
+        goto done;
     }
-    else {
-        while(bytes_read < bytes && available(context->rxq) > 0) {
-            ((char*)buf)[bytes_read] = getchar(context->rxq);
-            bytes_read++;
-        }
-        ((char*)buf)[bytes_read] = 0;
-    }
-    return bytes_read;
-
-    // feof not supported w/ current getchar, since it loops waiting for input.
-    // we should fix that so it is non-blocking...
-    /*
-     *int bytes_read = 0;
-     *if(available(context->rxq) >= bytes) {
-     *    for(int i = 0; i < bytes; i++) {
-     *        ((char*)buf)[i] = getchar(context->rxq);
-     *    }
-     *    bytes_read = bytes;
-     *}
-     *return bytes_read;
-     */
+    do {
+        queue_push(context->txq, buf[bytes_written]);
+        bytes_written += (context->txq->op_ok) ? 1:0;
+    } while(context->txq->op_ok && bytes_written < bytes);
+    if(bytes_written > 0) context->uart_base->C2 |= UART_C2_TIE_MASK;
+done:
+    return bytes_written;
 }
 
+unsigned int uart_read(uart_context *context, char *buf, unsigned int bytes) {
+    unsigned int bytes_read = 0;
+    if(bytes == 0) {
+        bytes_read = context->rxq->size;
+        goto done;
+    }
+    do {
+        char c = queue_pop(context->rxq);
+        if(context->rxq->op_ok) {
+            buf[bytes_read] = c;
+        }
+        bytes_read += (context->rxq->op_ok) ? 1:0;
+    } while(context->rxq->op_ok && bytes_read < bytes);
+done:
+    return bytes_read;
+}
 
-// FIXME deinit uart, turn off interrupts? Data not available in context atm...
-unsigned int uart_close(uart_context *context) {}
+unsigned int uart_close(uart_context *context) { return 0; }
+
+void UART0_RX_TX_IRQHandler(void) {
+    if(!isr_active) {
+        isr_active = true;
+        which_uart = 0;
+        uart_isr();
+        isr_active = false;
+    }
+}
+
+void uart_isr(void){
+    if((contexts[which_uart].uart_base->C2 & UART_C2_TIE_MASK)
+            && (contexts[which_uart].uart_base->S1 & UART_S1_TDRE_MASK)) {
+        // tx int
+        char c = queue_pop(contexts[which_uart].txq);
+        if(!contexts[which_uart].txq->op_ok) {
+            contexts[which_uart].uart_base->C2 &= ~UART_C2_TIE_MASK;
+        }
+        else {
+            contexts[which_uart].uart_base->D = c;
+        }
+    }
+    else if(contexts[which_uart].uart_base->S1 & UART_S1_RDRF_MASK) {
+        // rx int
+        queue_push(contexts[which_uart].rxq, contexts[which_uart].uart_base->D);
+    }
+}
+
+void UART0_ERR_IRQHandler(void) {
+    abort();
+}

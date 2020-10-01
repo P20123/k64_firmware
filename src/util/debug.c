@@ -2,8 +2,11 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
+#include <tinyxpc/tinyxpc.h>
+#include <tinyxpc/xpc_relay.h>
 
-extern void txpc_send_msg(int, int, int, char *, int);
+extern char *xpc_scratch_region;
+void txpc_send_msg(int, int, int, char *, int);
 /**
  * Create a debug message from a format string, it's unique identifier, and
  * argument list.

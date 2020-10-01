@@ -9,6 +9,10 @@
 #include <cwpack.h>
 #include <MK64F12.h>
 
+const int xpc_scratch_cap = 4096;
+int xpc_scratch_bytes;
+char xpc_scratch_region[4096];
+
 
 typedef struct {
     int fd;
@@ -36,7 +40,7 @@ int uart_relay_read(void *io_ctx, char **buffer, int offset, size_t bytes_max) {
         *buffer = (char*)ctx->read_buf;
     }
     else {
-        bytes = read(ctx->fd, *buffer, bytes_max);
+        bytes = read(ctx->fd, *buffer + offset, bytes_max);
     }
     if(bytes < 0) {
         bytes = 0;
@@ -78,8 +82,8 @@ xpc_relay_state_t *xpc_relay_config(
     crc_fn *crc, crc_polyn_config *crc_config
 );
 
-uart_relay_ctx_t uart0_io_ctx;
-xpc_relay_state_t uart0_relay;
+volatile uart_relay_ctx_t uart0_io_ctx;
+volatile xpc_relay_state_t uart0_relay;
 int stdout;
 
 void init_pit(int period_us) {
@@ -108,6 +112,27 @@ void PIT0_IRQHandler(void) {
 int main(void) {
     uart0_conf.input_clock_rate = SystemCoreClock;
     stdout = uart_init(uart0_conf);
+    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    PORTB->PCR[21] |= PORT_PCR_MUX(1);
+    PORTB->PCR[22] |= PORT_PCR_MUX(1);
+    GPIOB->PDDR |= (1 << 21);
+    GPIOB->PDDR |= (1 << 22);
+    GPIOB->PSOR |= (1 << 21);
+    GPIOB->PCOR |= (1 << 22);
+    xpc_scratch_bytes = 0;
+    int bytes = 0;
+    /*
+     *char buf[255];
+     *while(1) {
+     *    bytes = read(stdout, buf, 255);
+     *    if(bytes > 0) {
+     *        while((bytes -= write(stdout, buf, bytes)));
+     *        memset(buf, 0, 255);
+     *        bytes = 0;
+     *    }
+     *}
+     */
+    /*while((bytes = write(stdout, "hello world\r\n", 13)) < 13);*/
 
     xpc_relay_config(
         &uart0_relay,
@@ -127,10 +152,12 @@ int main(void) {
     init_pit(10000);
     int status = TXPC_STATUS_BAD_STATE;
     while(status != TXPC_STATUS_DONE) {
-        asm("cpsid i");
         status = xpc_relay_send_reset(&uart0_relay);
-        asm("cpsie i");
     }
+    while(xpc_send_msg(&uart0_relay, 0, 0xA, NULL, 0) != TXPC_STATUS_DONE);
+    GPIOB->PCOR |= (1 << 21);
+    GPIOB->PSOR |= (1 << 22);
+
     for(;;);
     return 0;
 }

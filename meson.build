@@ -3,7 +3,8 @@ project('k64_base', 'c')
 # dependencies
 dep_txpc = dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])
 dep_msgpack = subproject('cwpack').get_variable('dep_cwpack')
-dependencies = [dep_txpc, dep_msgpack]
+dep_queue = subproject('base_queue').get_variable('dep_queue')
+dependencies = [dep_txpc, dep_msgpack, dep_queue]
 
 # Project include path.
 local_headers = ['include']
@@ -14,10 +15,9 @@ c_sources = [
     'src/kernel/kernel_support.c',
     'src/kernel/environment.c',
     'src/kernel/hardfault.c',
-    #'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
-    #'src/kernel/sbrk.c',
+    'src/kernel/abort.c',
     'src/nongnu/unistd.c',
     'src/drivers/uart.c',
     'src/libc/string.c',
@@ -26,8 +26,6 @@ c_sources = [
 
 # List of ASM sources to compile.  Relative to project root.
 asm_sources = [
-    'src/asmlib/queue.s',
-    'src/asmlib/uart_driver.s'
 ]
 
 ## project setup

@@ -5,7 +5,7 @@
 
 void *memset(void *dest, int c, size_t size) {
     unsigned int words = size >> 2; // divide by four
-    unsigned int chars = size - words;
+    unsigned int chars = size - (words << 2);
     for(int i = 0; i < words; i++) {
         ((uint32_t*)dest)[i] = (c << 24) | (c << 16) | (c << 8) | c;
     }
@@ -48,7 +48,7 @@ done:
 
 void *memcpy(void *__restrict dest, const void *__restrict src, size_t size) {
     unsigned int words = size >> 2; // divide by four
-    unsigned int chars = size - words;
+    unsigned int chars = size - (words << 2);
     for(int i = 0; i < words; i++) {
         *((uint32_t*)dest + i) = *((uint32_t*)src + i);
     }
@@ -60,7 +60,7 @@ void *memcpy(void *__restrict dest, const void *__restrict src, size_t size) {
 
 int memcmp(const void *s1, const void *s2, size_t n) {
     unsigned int words = n >> 2; // divide by four
-    unsigned int chars = n - words;
+    unsigned int chars = n - (words << 2);
     int order = 0;
     int word_idx = 0;
     int byte_idx = 0;

@@ -4,3 +4,6 @@
 [submodule "tinyxpc"]
 	path = subprojects/tinyxpc
 	url = https://github.com/PyroAVR/tinyxpc
+[submodule "base_queue"]
+	path = subprojects/base_queue
+	url = https://github.com/P20123/base_queue
