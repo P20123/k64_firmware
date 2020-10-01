@@ -57,6 +57,9 @@
 #define TOF_WHOAMI_L 0x0Fu
 #define TOF_WHOAMI_VALUE 0xEA // WHOAMI VALUE
 
+// GPS ADDRESS
+#define GPS_SADDR 0x10u
+
 
 #define WHOAMI_SEQ_LEN 5
 static i2c_seq_t gxl_whoami_seq[] = {
@@ -199,6 +202,43 @@ static i2c_seq_t bar_output_seq[] = {
     I2C_READ_ADDR(ALTIMU_BAR_SADDR),
     I2C_SEND_READ,
     I2C_SEND_READ
+};
+
+#define GPS_READ_LEN 33
+static i2c_seq_t gps_read_seq[] = {
+    I2C_READ_ADDR(GPS_SADDR),
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
+    I2C_SEND_READ,
 };
 
 
@@ -344,7 +384,7 @@ int main(void) {
     PRINT("START\n\r");
 
     // i2c data
-    uint8_t data[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    uint8_t data[32];
 
     // initialize the i2c module
     i2c_config_t config = {
@@ -373,6 +413,9 @@ int main(void) {
     errno = altimu_read_gxl(data);
     errno = altimu_read_mag(data);
     errno = altimu_read_bar(data);
+//    I2C_TX_WAIT(0);
+//    errno = i2c_send_seq(0, gps_read_seq, GPS_READ_LEN, data, &callback_test, 0);
+//    I2C_TX_WAIT(0);
 
     if(errno != 0) {
         PRINT("===== ERROR =====\n\r");
