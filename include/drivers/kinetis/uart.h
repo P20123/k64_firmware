@@ -13,10 +13,6 @@ typedef struct {
     uint32_t *tx_pcr;
     uint32_t *rt_pcr;
     uint32_t *ct_pcr;
-    uint8_t rx_alt;
-    uint8_t tx_alt;
-    uint8_t rt_alt;
-    uint8_t ct_alt;
     uint32_t baud;
     uint32_t input_clock_rate;
     uint32_t *uart_clock_gate_base;
@@ -26,6 +22,12 @@ typedef struct {
     uint8_t configure_interrupts;
     uint8_t irqn;
     uint8_t priority;
+    uint8_t rx_alt;
+    uint8_t tx_alt;
+    uint8_t rt_alt;
+    uint8_t ct_alt;
+    uint8_t rwfifo_sz;
+    uint8_t twfifo_sz;
 } uart_config;
 
 typedef struct {

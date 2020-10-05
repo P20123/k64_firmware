@@ -20,7 +20,9 @@ uart_config uart0_conf = {
     .port_clock_gate_mask = SIM_SCGC5_PORTB_MASK,
     .configure_interrupts = 1,
     .irqn = UART0_RX_TX_IRQn,
-    .priority = 0
+    .priority = 0,
+    .rwfifo_sz = 0,
+    .twfifo_sz = 8
 };
 
 // UART 3 CONFIGURATION (HM-10 BLE UART)
@@ -42,6 +44,8 @@ uart_config uart3_conf = {
     .port_clock_gate_mask = SIM_SCGC5_PORTC_MASK,
     .configure_interrupts = 1,
     .irqn = UART3_RX_TX_IRQn,
-    .priority = 1
+    .priority = 1,
+    .rwfifo_sz = 0,
+    .twfifo_sz = 0
 };
 
