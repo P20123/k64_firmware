@@ -44,11 +44,6 @@ unsigned int uart_close(uart_context *context);
  */
 void uart_isr(int which_uart);
 
-// currently active uart
-static volatile int which_uart;
-// true if any uart is currently being processed by uart_isr
-static volatile bool isr_active;
-
 queue_t txq_headers[6];
 queue_t rxq_headers[6];
 volatile char txqs[6][255];
