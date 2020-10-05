@@ -1,28 +1,31 @@
 project('k64_base', 'c')
 
 # dependencies
-dependencies = []
+dep_queue = subproject('base_queue').get_variable('dep_queue')
+dependencies = [dep_queue]
 
 # Project include path.
 local_headers = ['include']
 
 # List of C sources to compile. Relative to project root.
 c_sources = [
+    # kernel files
     'src/kernel/hardfault.c',
-    'src/kernel/kernel_support.c',
+    'src/kernel/file_table.c',
     'src/kernel/environment.c',
-    'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
-    'src/kernel/sbrk.c',
+    # custom libc
+    'src/libc/string.c',
+    # Core peripherals
+    'src/drivers/kinetis/uart.c',
     'src/nongnu/unistd.c',
-    'src/drivers/uart.c'
+    # Applications/Programs
+    'src/programs/uart_test.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
 asm_sources = [
-    'src/asmlib/queue.s',
-    'src/asmlib/uart_driver.s'
 ]
 
 ## project setup
