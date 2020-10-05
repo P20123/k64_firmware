@@ -1,5 +1,5 @@
 #pragma once
-#include <drivers/uart.h>
+#include <drivers/kinetis/uart.h>
 /**
  * The real thing is in src/kernel/environment.c
  */

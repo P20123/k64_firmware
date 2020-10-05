@@ -1,5 +1,5 @@
 #include <environment.h>
-#include <drivers/uart.h>
+#include <drivers/kinetis/uart.h>
 
 // UART 0 CONFIGURATION (OpenSDA UART <-> USB)
 uart_config uart0_conf = {

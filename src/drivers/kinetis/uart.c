@@ -1,5 +1,5 @@
 #include <MK64F12.h>
-#include <drivers/uart.h>
+#include <drivers/kinetis/uart.h>
 #include <kernel/kernel_ftab.h>
 #include <queue/queue.h>
 #include <stdbool.h>
@@ -198,6 +198,7 @@ unsigned int uart_close(uart_context *context) { return 0; }
 
 
 void uart_isr(void){
+    asm("cpsid i");
     if((contexts[which_uart].uart_base->C2 & UART_C2_TIE_MASK)
             && (contexts[which_uart].uart_base->S1 & UART_S1_TDRE_MASK)) {
         // tx int
@@ -213,6 +214,7 @@ void uart_isr(void){
         // rx int
         queue_push(contexts[which_uart].rxq, contexts[which_uart].uart_base->D);
     }
+    asm("cpsie i");
 }
 
 /**
