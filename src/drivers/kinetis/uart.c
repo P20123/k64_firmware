@@ -117,8 +117,6 @@ int uart_init(uart_config conf) {
     queue_init(&rxq_headers[which], &rxqs[which], 255);
 
     // make isr available
-    which_uart = 0;
-    isr_active = false;
 
     //Enable transmitter and receiver of UART (and interrupts)
     if(conf.configure_interrupts > 0) {
