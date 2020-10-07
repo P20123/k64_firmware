@@ -220,12 +220,13 @@ void uart_isr(int which_uart){
             char c = queue_pop(contexts[which_uart].txq);
             if(contexts[which_uart].txq->op_ok) {
                 contexts[which_uart].uart_base->D = c;
-                // re-enable int. if data is available
-                if(contexts[which_uart].txq->size > 0) {
-                    contexts[which_uart].uart_base->C2 |= UART_C2_TIE_MASK;
-                }
+                break;
             }
             sz--;
+        }
+        // re-enable int. if data is available
+        if(contexts[which_uart].txq->size > 0) {
+            contexts[which_uart].uart_base->C2 |= UART_C2_TIE_MASK;
         }
     }
     else if(contexts[which_uart].uart_base->S1 & UART_S1_RDRF_MASK) {
