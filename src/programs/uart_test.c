@@ -16,6 +16,7 @@ void init_pit(int period_us) {
 
     PIT->MCR &= ~PIT_MCR_MDIS_MASK;
     NVIC_EnableIRQ(PIT0_IRQn);
+    NVIC->IP[PIT0_IRQn] = 0;
 }
 
 
@@ -25,7 +26,7 @@ void PIT0_IRQHandler(void) {
     PIT->CHANNEL[0].TFLG |= PIT_TFLG_TIF_MASK;
     // delay to simulate nasty ISR
     color ^= 1;
-    for(volatile int i = 0; i < 100; i++);
+    for(volatile int i = 0; i < 1000; i++);
     asm("cpsie i");
 }
 
@@ -43,8 +44,9 @@ int main(void) {
     GPIOB->PSOR |= (1 << 21);
     GPIOB->PCOR |= (1 << 22);
     color = 0;
-    // 100 Hz, long-running interrupt
-    init_pit(1000);
+    // 504 kHz, long-running interrupt (this is exactly tuned to fill the CPU
+    // at 20.97 MHz)
+    init_pit(504);
 
     while(1) {
         bytes = read(stdout, buf, 255);
