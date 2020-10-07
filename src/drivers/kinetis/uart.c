@@ -121,7 +121,8 @@ int uart_init(uart_config conf) {
     //Enable transmitter and receiver of UART (and interrupts)
     if(conf.configure_interrupts > 0) {
         asm("cpsid i");
-        // set RWFIFO[RXWATER] such that interrupts are actually generated
+        // set RWFIFO[RXWATER] so that interrupts are generated at the specified
+        // number of words in queue.
         if(conf.rwfifo_sz > 0) {
             conf.uart_base->RWFIFO = conf.rwfifo_sz;
             conf.uart_base->PFIFO |= (UART_PFIFO_RXFE_MASK);
@@ -132,7 +133,8 @@ int uart_init(uart_config conf) {
             conf.uart_base->RWFIFO = 1;
         }
 
-        // set TWFIFO[TXWATER] such that interrupts are actually generated
+        // set TWFIFO[TXWATER] such that interrupts are generated at the
+        // specified number of words in the queue.
         if(conf.twfifo_sz > 0) {
             conf.uart_base->TWFIFO = conf.twfifo_sz;
             conf.uart_base->PFIFO |= (UART_PFIFO_TXFE_MASK);
@@ -207,17 +209,21 @@ void uart_isr(int which_uart){
     uint8_t sz = 0;
     if((contexts[which_uart].uart_base->C2 & UART_C2_TIE_MASK)
             && (contexts[which_uart].uart_base->S1 & UART_S1_TDRE_MASK)) {
-        // tx int
+        // disable tx int
+        contexts[which_uart].uart_base->C2 &= ~UART_C2_TIE_MASK;
+        // this calculation amounts to "size of buffer minus words in buffer"
         sz = (contexts[which_uart].uart_base->PFIFO
                 & UART_PFIFO_TXFIFOSIZE_MASK) >> UART_PFIFO_TXFIFOSIZE_SHIFT;
         sz = (sz == 0)? 1:(1 << (sz + 1));
+        sz -= contexts[which_uart].uart_base->TCFIFO;
         while(sz) {
             char c = queue_pop(contexts[which_uart].txq);
-            if(!contexts[which_uart].txq->op_ok) {
-                contexts[which_uart].uart_base->C2 &= ~UART_C2_TIE_MASK;
-            }
-            else {
+            if(contexts[which_uart].txq->op_ok) {
                 contexts[which_uart].uart_base->D = c;
+                // re-enable int. if data is available
+                if(contexts[which_uart].txq->size > 0) {
+                    contexts[which_uart].uart_base->C2 |= UART_C2_TIE_MASK;
+                }
             }
             sz--;
         }
