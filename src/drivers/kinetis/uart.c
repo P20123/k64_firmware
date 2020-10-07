@@ -207,6 +207,9 @@ unsigned int uart_close(uart_context *context) { return 0; }
 
 void uart_isr(int which_uart){
     uint8_t sz = 0;
+#ifdef __KINETIS_UART_BLOCKING_ISR
+    asm("cpsid i");
+#endif
     if((contexts[which_uart].uart_base->C2 & UART_C2_TIE_MASK)
             && (contexts[which_uart].uart_base->S1 & UART_S1_TDRE_MASK)) {
         // disable tx int
@@ -237,6 +240,9 @@ void uart_isr(int which_uart){
             sz--;
         }
     }
+#ifdef __KINETIS_UART_BLOCKING_ISR
+    asm("cpsie i");
+#endif
 }
 
 /**
