@@ -16,7 +16,7 @@ volatile I2C_Channel i2c_chs[I2C_NUM_DEVICES];
 /* global variable to store the base pointers */
 static I2C_Type *i2c_bases[] = I2C_BASE_PTRS;
 
-void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
+void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     /* get the base pointer */
     I2C_Type *base = i2c_bases[config.i2c_num];
 
@@ -47,14 +47,6 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
     /* disable i2c for config and clear all status flags */
     base->C1 &= ~I2C_C1_IICEN_MASK;
     base->S = I2C_S_ARBL_MASK | I2C_S_IICIF_MASK;
-
-    /* enable interrupts */
-    if (true == config.interrupt) {
-        asm("cpsid i");
-        NVIC_EnableIRQ(i2c_irqs[config.i2c_num]);
-        NVIC->IP[config.irqn] = config.priority;
-        asm("cpsie i");
-    }
 
     /* set baud rate with least error */
     uint32_t rate;
@@ -92,13 +84,19 @@ void init_m_i2c(i2c_config_t config, uint32_t clk_f_hz) {
     /* configure glitch filter */
     base->FLT |= I2C_FLT_FLT(config.filter_clocks);
 
+    /* enable interrupts */
+    if (true == config.interrupt) {
+        asm("cpsid i");
+        NVIC_EnableIRQ(i2c_irqs[config.i2c_num]);
+        NVIC->IP[i2c_irqs[config.i2c_num]] = config.priority;
+        asm("cpsie i");
+    }
+
     /* enable i2c */
     base->C1 |= I2C_C1_IICEN_MASK;
 
-    /* initialize the channels to be available */
-    for(int i = 0; i < I2C_NUM_DEVICES; i++) {
-        i2c_chs[i].status = I2C_AVAILABLE;
-    }
+    /* initialize the channel to be available */
+    i2c_chs[config.i2c_num].status = I2C_AVAILABLE;
 }
 
 uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
@@ -287,7 +285,7 @@ i2c_isr_stop:
         (*ch->callback)(ch->args);
     }
 
-    /* sest channel back to available */
+    /* set channel back to available */
     ch->status = I2C_AVAILABLE;
     goto i2c_isr_exit;
 
