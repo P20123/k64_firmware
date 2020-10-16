@@ -306,3 +306,7 @@ i2c_isr_exit:
 void I2C0_IRQHandler() {
     i2c_irq_handler(0);
 }
+
+void done_cb(void *args) {
+    *(bool *)args = true;
+}

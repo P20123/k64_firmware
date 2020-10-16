@@ -120,3 +120,10 @@ uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t
  *         -2 if interrupt wasn't triggered but IRQ was entered.
  */
 uint32_t i2c_irq_handler(uint8_t ch_num);
+
+/**
+ * Callback function that sets a flag for I2C transfer complete.
+ * @param args Void pointer to a boolean flag.
+ */
+void done_cb(void *args);
+
