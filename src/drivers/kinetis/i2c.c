@@ -1,5 +1,5 @@
 #include <MK64F12.h>
-#include <drivers/i2c.h>
+#include <drivers/kinetis/i2c.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -53,18 +53,19 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     uint32_t abserr;
     uint32_t besterr = UINT32_MAX;
     uint8_t bestmult, besticr;
-    for(uint8_t mult = 0; mult <= 2; mult++) {
+    for(uint8_t mult = 0; mult <= 2u; mult++) {
         for(uint8_t icr = 0; icr < sizeof(SCL_LUT) / sizeof(uint16_t); icr++) {
             rate = clk_f_hz / (SCL_LUT[icr] << mult);
             abserr = config.baud > rate ? config.baud - rate : rate - config.baud;
 
             if(abserr < besterr) {
-                if(0 == abserr) {
-                    break;
-                }
                 bestmult = mult;
                 besticr = icr;
                 besterr = abserr;
+
+                if(0 == abserr) {
+                    break;
+                }
             }
         }
         if (0 == besterr) {

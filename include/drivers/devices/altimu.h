@@ -49,6 +49,16 @@
 #define BAR_ERROR_NOT_FOUND -5
 
 /*************
+ * EXTERNS
+ *************/
+extern i2c_seq_t GXL_POKE_SEQ[];
+extern i2c_seq_t GXL_STATUS_SEQ[];
+extern i2c_seq_t MAG_POKE_SEQ[];
+extern i2c_seq_t MAG_STATUS_SEQ[];
+extern i2c_seq_t BAR_POKE_SEQ[];
+extern i2c_seq_t BAR_STATUS_SEQ[];
+
+/*************
  * FUNCTIONS
  *************/
 
@@ -80,7 +90,7 @@ int init_altimu_gxl(uint8_t i2c_ch);
  * @return 0 if no errors, MAG_ERROR_NOT_FOUND if not found, I2C errors if
  *         transmission fails.
  */
-int init_altimmu_mag(uint8_t i2c_ch);
+int init_altimu_mag(uint8_t i2c_ch);
 
 /*
  * This function initializes the barometer of the AltIMU.
@@ -93,13 +103,14 @@ int init_altimu_bar(uint8_t i2c_ch);
 
 /*
  * This function queries a specific device for its data status.
+ * Uses the following sequences: BAR_STATUS_SEQ, MAG_STATUS_SEQ, GXL_STATUS_SEQ
  * @param i2c_ch I2C Channel that is connected to the AltIMU.
  * @param seq A pointer to the sequence to be sent by the function.
  * @param status A pointer to a one byte buffer to store the status data.
  * @param done A pointer to a boolean specifying whether or not the transfer is done.
  * @return 0 if no errors, I2C errors if transmission fails.
  */
-int read_altimu_devstat(uint8_t i2c_ch, i2c_seq_t *seq, uint8_t *status, bool *done);
+int read_altimu_status(uint8_t i2c_ch, i2c_seq_t *seq, uint8_t *status, bool *done);
 
 /*
  * This function reads data from the gyro/accel.

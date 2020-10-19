@@ -2,7 +2,11 @@
 #include <drivers/devices/altimu.h>
 #include <stdbool.h>
 
+/**********
+ * MACROS
+ **********/
 #define CHECK_I2C_ERRNO() if(0 != errno) {goto failout;}
+
 /*************
  * CONSTANTS
  *************/
@@ -54,6 +58,7 @@ static i2c_seq_t GXL_INT1C_SEQ[] = {
     I2C_WRITE_VALUE(0x03u)          /* INT1_CTRL value */
 };
 
+/* Gyroscope and Accelerometer INT1_CTRL Sequence */
 i2c_seq_t GXL_STATUS_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_GXL_SADDR),
     I2C_WRITE_REG(GXL_STATUS_REG),
@@ -62,6 +67,7 @@ i2c_seq_t GXL_STATUS_SEQ[] = {
     I2C_SEND_READ
 };
 
+/* Gyroscope and Accelerometer Burst Read Sequence */
 static i2c_seq_t GXL_DATA_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_GXL_SADDR),
     I2C_WRITE_REG(GXL_OUTX_L_G),
@@ -104,6 +110,7 @@ static i2c_seq_t MAG_C1TO4_SEQ[] = {
     I2C_WRITE_VALUE(0x08u)      /* CTRL_REG4 value */
 };
 
+/* Magnetometer MAG_STATUS_REG Sequence */
 i2c_seq_t MAG_STATUS_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_MAG_SADDR),
     I2C_WRITE_REG(MAG_STATUS_REG),
@@ -112,6 +119,7 @@ i2c_seq_t MAG_STATUS_SEQ[] = {
     I2C_SEND_READ
 };
 
+/* Magnetometer Burst Read Sequence */
 static i2c_seq_t MAG_DATA_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_MAG_SADDR),
     I2C_WRITE_REG(MAG_OUT_X_L | STM_AUTO_INCR_MASK),
@@ -145,6 +153,7 @@ static i2c_seq_t BAR_C1_SEQ[] = {
     I2C_WRITE_VALUE(0xC0u)    /* CTRL_REG1 value */
 };
 
+/* Barometer STATUS_REG Sequence */
 i2c_seq_t BAR_STATUS_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_BAR_SADDR),
     I2C_WRITE_REG(BAR_STATUS_REG),
@@ -153,6 +162,7 @@ i2c_seq_t BAR_STATUS_SEQ[] = {
     I2C_SEND_READ
 };
 
+/* Barometer Burst Read Sequence */
 static i2c_seq_t BAR_DATA_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_BAR_SADDR),
     I2C_WRITE_REG(BAR_PRESS_OUT_L | STM_AUTO_INCR_MASK),
@@ -171,6 +181,7 @@ int altimu_reg_cmp(uint8_t i2c_ch, i2c_seq_t *stat_seq, uint8_t expected, int er
     int errno = 0;
     uint8_t id = 0;
 
+//    asm("bkpt 1");
     /* ensure that the i2c bus is free */
     I2C_TX_WAIT(i2c_ch);
 
@@ -217,7 +228,7 @@ failout:
     return errno;
 }
 
-int init_altimmu_mag(uint8_t i2c_ch) {
+int init_altimu_mag(uint8_t i2c_ch) {
     int errno = 0;
 
     /* ensure that the device is connected to the bus */
@@ -248,7 +259,7 @@ failout:
 }
 
 /* Reading functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int read_altimu_devstat(uint8_t i2c_ch, i2c_seq_t *seq, uint8_t *status, bool *done) {
+int read_altimu_status(uint8_t i2c_ch, i2c_seq_t *seq, uint8_t *status, bool *done) {
     int errno = 0;
 
     /* send a one byte read to the status register of choice */
