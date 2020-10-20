@@ -111,7 +111,7 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz);
  * @param args Arguments for the callback function.
  * @return 0 if no error, -1 if I2C is busy or arbitration is lost.
  */
-uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args);
+int i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args);
 
 /**
  * Generic IRQ handler that all I2C ISRs will call.
@@ -120,3 +120,10 @@ uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t
  *         -2 if interrupt wasn't triggered but IRQ was entered.
  */
 uint32_t i2c_irq_handler(uint8_t ch_num);
+
+/**
+ * Callback function that sets a flag for I2C transfer complete.
+ * @param args Void pointer to a boolean flag.
+ */
+void done_cb(void *args);
+
