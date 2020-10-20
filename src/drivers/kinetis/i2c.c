@@ -1,5 +1,5 @@
 #include <MK64F12.h>
-#include <drivers/i2c.h>
+#include <drivers/kinetis/i2c.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -40,7 +40,8 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     base->A1 = 0;
     base->F = 0;
     base->C1 = 0;
-    base->S = 0xFFu;
+    base->S = 0x80;
+    base->FLT = 0;
     base->C2 = 0;
     base->RA = 0;
 
@@ -53,18 +54,19 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     uint32_t abserr;
     uint32_t besterr = UINT32_MAX;
     uint8_t bestmult, besticr;
-    for(uint8_t mult = 0; mult <= 2; mult++) {
+    for(uint8_t mult = 0; mult <= 2u; mult++) {
         for(uint8_t icr = 0; icr < sizeof(SCL_LUT) / sizeof(uint16_t); icr++) {
             rate = clk_f_hz / (SCL_LUT[icr] << mult);
             abserr = config.baud > rate ? config.baud - rate : rate - config.baud;
 
             if(abserr < besterr) {
-                if(0 == abserr) {
-                    break;
-                }
                 bestmult = mult;
                 besticr = icr;
                 besterr = abserr;
+
+                if(0 == abserr) {
+                    break;
+                }
             }
         }
         if (0 == besterr) {
@@ -76,9 +78,6 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     /* configure stop-hold enable */
     if(true == config.stophold) {
         base->FLT |= I2C_FLT_SHEN_MASK;
-    }
-    else {
-        base->FLT &= I2C_FLT_SHEN_MASK;
     }
 
     /* configure glitch filter */
@@ -96,10 +95,17 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     base->C1 |= I2C_C1_IICEN_MASK;
 
     /* initialize the channel to be available */
+    i2c_chs[config.i2c_num].seq = 0;
+    i2c_chs[config.i2c_num].seq_end = 0;
+    i2c_chs[config.i2c_num].received_data = 0;
+    i2c_chs[config.i2c_num].reads_ahead = 0;
+    i2c_chs[config.i2c_num].txrx = 0;
     i2c_chs[config.i2c_num].status = I2C_AVAILABLE;
+    i2c_chs[config.i2c_num].callback = 0;
+    i2c_chs[config.i2c_num].args = 0;
 }
 
-uint32_t i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
+int i2c_send_seq(uint32_t ch_num, i2c_seq_t *seq, uint32_t seq_len, uint8_t *received_data, void (*callback)(void *), void *args) {
     /* get the channel and the base from the globals */
     volatile I2C_Channel *ch = &i2c_chs[ch_num];
     I2C_Type *base = (I2C_Type *)i2c_bases[ch_num];
@@ -305,4 +311,8 @@ i2c_isr_exit:
 
 void I2C0_IRQHandler() {
     i2c_irq_handler(0);
+}
+
+void done_cb(void *args) {
+    *(bool *)args = true;
 }
