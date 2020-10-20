@@ -72,7 +72,7 @@ extern i2c_seq_t BAR_STATUS_SEQ[];
  * @param errcode Error code to be returned if the register does not match.
  * @return 0 if no errors, errcode if not found, or I2C errors.
  */
-int altimu_reg_cmp(uint8_t i2cnum, i2c_seq_t *stat_seq, uint8_t expected, int errcode);
+int altimu_regcmp(uint8_t i2cnum, i2c_seq_t *stat_seq, uint8_t expected, int errcode);
 
 /*
  * This function initializes the gyroscope and accelerometer of the AltIMU.
@@ -81,7 +81,7 @@ int altimu_reg_cmp(uint8_t i2cnum, i2c_seq_t *stat_seq, uint8_t expected, int er
  * @return 0 if no errors, GXL_ERROR_NOT_FOUND if not found, I2C errors if
  *         transmission fails.
  */
-int init_altimu_gxl(uint8_t i2cnum);
+int altimu_gxl_init(uint8_t i2cnum);
 
 /*
  * This function initializes the magnetometer of the AltIMU.
@@ -90,7 +90,7 @@ int init_altimu_gxl(uint8_t i2cnum);
  * @return 0 if no errors, MAG_ERROR_NOT_FOUND if not found, I2C errors if
  *         transmission fails.
  */
-int init_altimu_mag(uint8_t i2cnum);
+int altimu_mag_init(uint8_t i2cnum);
 
 /*
  * This function initializes the barometer of the AltIMU.
@@ -99,7 +99,7 @@ int init_altimu_mag(uint8_t i2cnum);
  * @return 0 if no errors, BAR_ERROR_NOT_FOUND if not found, I2C errors if
  *         transmission fails.
  */
-int init_altimu_bar(uint8_t i2cnum);
+int altimu_bar_init(uint8_t i2cnum);
 
 /*
  * This function queries a specific device for its data status.
@@ -110,7 +110,7 @@ int init_altimu_bar(uint8_t i2cnum);
  * @param done A pointer to a boolean specifying whether or not the transfer is done.
  * @return 0 if no errors, I2C errors if transmission fails.
  */
-int read_altimu_status(uint8_t i2cnum, i2c_seq_t *seq, uint8_t *status, bool *done);
+int altimu_read_status(uint8_t i2cnum, i2c_seq_t *seq, uint8_t *status, bool *done);
 
 /*
  * This function reads data from the gyro/accel.
@@ -120,7 +120,7 @@ int read_altimu_status(uint8_t i2cnum, i2c_seq_t *seq, uint8_t *status, bool *do
  * @param done A pointer to a boolean specifying whether or not the transfer is done.
  * @return 0 if no errors, I2C errors if transmission fails.
  */
-int read_altimu_gxl(uint8_t i2cnum, uint8_t *data, bool *done);
+int altimu_read_gxl(uint8_t i2cnum, uint8_t *data, bool *done);
 
 /*
  * This function reads data from the magnetometer.
@@ -130,7 +130,7 @@ int read_altimu_gxl(uint8_t i2cnum, uint8_t *data, bool *done);
  * @param done A pointer to a boolean specifying whether or not the transfer is done.
  * @return 0 if no errors, I2C errors if transmission fails.
  */
-int read_altimu_mag(uint8_t i2cnum, uint8_t *data, bool *done);
+int altimu_read_mag(uint8_t i2cnum, uint8_t *data, bool *done);
 
 /*
  * This function reads data from the barometer.
@@ -140,4 +140,4 @@ int read_altimu_mag(uint8_t i2cnum, uint8_t *data, bool *done);
  * @param done A pointer to a boolean specifying whether or not the transfer is done.
  * @return 0 if no errors, I2C errors if transmission fails.
  */
-int read_altimu_bar(uint8_t i2cnum, uint8_t *data, bool *done);
+int altimu_read_bar(uint8_t i2cnum, uint8_t *data, bool *done);

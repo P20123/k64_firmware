@@ -177,7 +177,7 @@ static i2c_seq_t BAR_DATA_SEQ[] = {
  *************/
 
 /* Initialization functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int altimu_reg_cmp(uint8_t i2cnum, i2c_seq_t *stat_seq, uint8_t expected, int errcode) {
+int altimu_regcmp(uint8_t i2cnum, i2c_seq_t *stat_seq, uint8_t expected, int errcode) {
     int errnum = 0;
     uint8_t id = 0;
 
@@ -199,11 +199,11 @@ failout:
     return errnum;
 }
 
-int init_altimu_gxl(uint8_t i2cnum) {
+int altimu_gxl_init(uint8_t i2cnum) {
     int errnum = 0;
 
     /* ensure that the device is connected to the bus */
-    altimu_reg_cmp(i2cnum, GXL_POKE_SEQ, GXL_WHOAMI_VALUE, GXL_ERROR_NOT_FOUND);
+    altimu_regcmp(i2cnum, GXL_POKE_SEQ, GXL_WHOAMI_VALUE, GXL_ERROR_NOT_FOUND);
     CHECK_I2C_ERRNO();
 
     /* ensure that the i2c bus is free */
@@ -227,11 +227,11 @@ failout:
     return errnum;
 }
 
-int init_altimu_mag(uint8_t i2cnum) {
+int altimu_mag_init(uint8_t i2cnum) {
     int errnum = 0;
 
     /* ensure that the device is connected to the bus */
-    altimu_reg_cmp(i2cnum, MAG_POKE_SEQ, MAG_WHOAMI_VALUE, MAG_ERROR_NOT_FOUND);
+    altimu_regcmp(i2cnum, MAG_POKE_SEQ, MAG_WHOAMI_VALUE, MAG_ERROR_NOT_FOUND);
     CHECK_I2C_ERRNO();
 
     /* initialize the mag */
@@ -242,11 +242,11 @@ failout:
     return errnum;
 }
 
-int init_altimu_bar(uint8_t i2cnum) {
+int altimu_bar_init(uint8_t i2cnum) {
     int errnum = 0;
 
     /* ensure that the device is connected to the bus */
-    altimu_reg_cmp(i2cnum, BAR_POKE_SEQ, BAR_WHOAMI_VALUE, BAR_ERROR_NOT_FOUND);
+    altimu_regcmp(i2cnum, BAR_POKE_SEQ, BAR_WHOAMI_VALUE, BAR_ERROR_NOT_FOUND);
     CHECK_I2C_ERRNO();
 
     /* initialize the bar */
@@ -258,7 +258,7 @@ failout:
 }
 
 /* Reading functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int read_altimu_status(uint8_t i2cnum, i2c_seq_t *seq, uint8_t *status, bool *done) {
+int altimu_read_status(uint8_t i2cnum, i2c_seq_t *seq, uint8_t *status, bool *done) {
     int errnum = 0;
 
     /* send a one byte read to the status register of choice */
@@ -268,7 +268,7 @@ failout:
     return errnum;
 }
 
-int read_altimu_gxl(uint8_t i2cnum, uint8_t *data, bool *done) {
+int altimu_read_gxl(uint8_t i2cnum, uint8_t *data, bool *done) {
     int errnum = 0;
 
     /* send the burst read request for the gyro/accel */
@@ -278,7 +278,7 @@ failout:
     return errnum;
 }
 
-int read_altimu_mag(uint8_t i2cnum, uint8_t *data, bool *done) {
+int altimu_read_mag(uint8_t i2cnum, uint8_t *data, bool *done) {
     int errnum = 0;
 
     /* send the burst read request for the magnetometer */
@@ -288,7 +288,7 @@ failout:
     return errnum;
 }
 
-int read_altimu_bar(uint8_t i2cnum, uint8_t *data, bool *done) {
+int altimu_read_bar(uint8_t i2cnum, uint8_t *data, bool *done) {
     int errnum = 0;
 
     /* send the burst read request for the barometer */
