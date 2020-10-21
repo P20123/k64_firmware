@@ -16,9 +16,10 @@ typedef struct {
     read_fn read;
     write_fn write;
     close_fn close;
+    char pid_lock;
 } ftab_entry_t;
 
-#define FDT_SIZE 5
+#define FDT_SIZE 15
 
 /**
  * File descriptor table fields

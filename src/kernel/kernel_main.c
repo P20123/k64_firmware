@@ -3,7 +3,7 @@
  * is needed in a future application.
  */
 
-#include <kernel/kernel_ftab.h> /* ftab_init, temporary */
+#include <kernel/file.h> /* ftab_init, temporary */
 
 __attribute__((weak))
 int main() { return 0; }

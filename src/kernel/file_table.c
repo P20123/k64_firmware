@@ -1,4 +1,4 @@
-#include <kernel/kernel_ftab.h>
+#include <kernel/file.h>
 #include <stdint.h>
 /**
  * Functions and macros relating to the kernel's file descriptor table.
@@ -8,7 +8,8 @@
     .context = 0,\
     .read = 0,\
     .write = 0,\
-    .close = 0\
+    .close = 0,\
+    .pid_lock = 0\
 }
 
 #define IS_EMPTY_ENTRY(e) (((uint32_t)e.context | (uint32_t)e.read | (uint32_t)e.write | (uint32_t)e.close) == 0)
