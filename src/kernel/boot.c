@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <MK64F12.h>
 /**
  * This file is a shim for a real bootloader.  It acts as a way to call the
  * kernel with a command line, if any, from an already-running CPU and memory.
@@ -17,11 +18,16 @@ extern void SystemCoreClockUpdate(void);
 
 static const char kernel_commandline[] = "";
 
+volatile uint32_t *FPCCR = (uint32_t*)0xe000ef34u;
+
 
 __attribute__((noreturn))
 void bootloader_entry() {
     // if there are pre-kernel drivers that need initialization, those would
     // go here.
+    // turn off fpu automatic stacking & lazy stacking until a proecss needs it
+    // (this is a stack-space saving measure)
+    *FPCCR &= ~(3 << 30);
     SystemCoreClockUpdate();
 
     // branch to the entry point
