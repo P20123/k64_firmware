@@ -16,6 +16,9 @@ void kernel_main(const char *cmdline) {
     ftab_init();
 
     // device initialization here
+    for(int *i = (int *)0x1FFF0000; i < (int *)20030000; i++) {
+        *i = 0;
+    }
 
     // branch to main. Catch the program counter if the application main
     // exits, faults, or spuriously returns.
