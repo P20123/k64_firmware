@@ -1,28 +1,37 @@
 project('k64_base', 'c')
+cc = meson.get_compiler('c')
 
 # dependencies
-dependencies = []
+dep_queue = subproject('base_queue').get_variable('dep_queue')
+m_dep = cc.find_library('m', required : false)
+dependencies = [dep_queue, m_dep]
 
 # Project include path.
 local_headers = ['include']
 
 # List of C sources to compile. Relative to project root.
 c_sources = [
+    # kernel files
     'src/kernel/hardfault.c',
-    'src/kernel/kernel_support.c',
+    'src/kernel/file_table.c',
     'src/kernel/environment.c',
-    'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
-    'src/kernel/sbrk.c',
+    # custom libc
+    #    'src/libc/string.c',
+    # Core peripherals
+    'src/drivers/kinetis/uart.c',
+    'src/drivers/kinetis/i2c.c',
     'src/nongnu/unistd.c',
-    'src/drivers/uart.c'
+    # Devices
+    'src/drivers/devices/altimu.c',
+    # Applications/Programs
+    'src/programs/main.c',
+    'src/programs/MahonyAHRS.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
 asm_sources = [
-    'src/asmlib/queue.s',
-    'src/asmlib/uart_driver.s'
 ]
 
 ## project setup
