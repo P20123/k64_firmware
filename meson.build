@@ -1,13 +1,17 @@
 project('k64_base', 'c')
 
 # dependencies
-dependencies = []
+dependencies = [
+    subproject('base_queue').get_variable('dep_queue'),
+    meson.get_compiler('c').find_library('m')
+]
 
 # Project include path.
 local_headers = ['include']
 
 # List of C sources to compile. Relative to project root.
 c_sources = [
+    # kernel
     'src/kernel/hardfault.c',
     'src/kernel/kernel_support.c',
     'src/kernel/environment.c',
@@ -16,7 +20,11 @@ c_sources = [
     'src/kernel/kernel_main.c',
     'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
-    'src/drivers/uart.c'
+    # libc
+    'src/libc/string.c',
+    'src/libc/errno.c',
+    # drivers
+    # programs
 ]
 
 # List of ASM sources to compile.  Relative to project root.
