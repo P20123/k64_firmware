@@ -67,7 +67,7 @@ main = executable(
     'main.elf',
     c_sources,
     include_directories: _incl_dirs,
-    link_with: asm_static_object,
+    link_whole: asm_static_object,
     dependencies: dependencies,
     install: true,
     install_dir: false
