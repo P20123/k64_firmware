@@ -21,7 +21,6 @@ c_sources = [
     'src/kernel/sbrk.c',
     'src/nongnu/unistd.c',
     # libc
-    'src/libc/string.c',
     'src/libc/errno.c',
     # drivers
     # programs
