@@ -22,6 +22,7 @@ c_sources = [
     'src/nongnu/unistd.c',
     # libc
     'src/libc/errno.c',
+    'src/libc/string.c',
     # drivers
     # programs
 ]
