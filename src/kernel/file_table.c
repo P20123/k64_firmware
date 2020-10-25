@@ -9,7 +9,7 @@
     .read = 0,\
     .write = 0,\
     .close = 0,\
-    .pid_lock = 0\
+    .locks = {.read_pid = 0, .write_pid = 0}\
 }
 
 #define IS_EMPTY_ENTRY(e) (((uint32_t)e.context | (uint32_t)e.read | (uint32_t)e.write | (uint32_t)e.close) == 0)
