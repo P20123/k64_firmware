@@ -1,37 +1,14 @@
+/**
+ * PendSV_Handler is the entry point for the scheduler.  The actual scheduling
+ * algorithm takes place in scheduler_main().  The entry and exit for the
+ * scheduler must be written in assembly, because of the system-specific stack
+ * exchanges that must take place.
+ */
 .syntax unified
 .text
 
-.extern svcall_main
-
 .extern scheduler_main
 .extern process_table
-
-.macro use_psp opt=1, reg=r0
-    msr control, \reg
-.if \opt
-    orrs \reg, \reg, #1
-.else
-    bics \reg, \reg, #1
-.endif
-    mrs \reg, control
-.endm
-
-.global SVC_Handler
-.thumb_func
-SVC_Handler:
-    tst lr, #4
-    ite eq
-    mrseq r0, msp
-    mrsne r0, psp
-    // this is adapted from a random STM forum post. No idea why it works.
-    // R12 points to an address which is 2 bytes past where the svc arg is?!
-    // #24 is the return address... minus 2 is the ARG FOR IMM8
-    // GOOD HEAVENS
-    ldr r1, [r0, #24]
-    ldrsb r1, [r1, #-2]
-    // r0 -> appropriate sp (for args)
-    // r1 -> svc number
-    b svcall_main
 
 .global PendSV_Handler
 .thumb_func
@@ -72,17 +49,16 @@ PendSV_Handler:
     // save the exc_return value to the pcb
     strh lr, [r0, #16]
 
-    // r0 has the process_table pointer
     b do_process_switch
 
 from_kernel_proc:
     /** switching from a kernel process **/
-    // only one kernel process at a time, getting here implies that the kernel
-    // is done with whatever it was asked to do, and control should return to
-    // user-mode processes, or the processor should sleep.
-    // we only go from user -> kernel, never kernel -> kernel or exc -> kernel.
+    // There are no kernel processes, so this is NOT IMPLEMENTED.
+    // This is passthrough for the first context switch away from kernel_main.
 
 do_process_switch:
+    // r0 has the process_table pointer
+    movs r0, r12
     // switch to a new process here
     stmdb sp!, {lr}
     bl scheduler_main
