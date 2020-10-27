@@ -148,7 +148,7 @@ int uart_init(uart_config conf) {
             | UART_C2_RIE_MASK | UART_C2_TIE_MASK;
 
         NVIC_EnableIRQ(conf.irqn);
-        NVIC->IP[conf.irqn] = conf.priority;
+        NVIC_SetPriority(conf.irqn, conf.priority);
         // generate DMA requests instead of interrupts
         /*conf.uart_base->C5 |= UART_C5_TDMAS_MASK;*/
         // enable tx fifo

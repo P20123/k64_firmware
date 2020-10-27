@@ -87,7 +87,7 @@ void i2c_init(i2c_config_t config, uint32_t clk_f_hz) {
     if (true == config.interrupt) {
         asm("cpsid i");
         NVIC_EnableIRQ(i2c_irqs[config.i2c_num]);
-        NVIC->IP[i2c_irqs[config.i2c_num]] = config.priority;
+        NVIC_SetPriority(i2c_irqs[config.i2c_num], config.priority);
         asm("cpsie i");
     }
 
