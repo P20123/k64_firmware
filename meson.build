@@ -2,16 +2,17 @@ project('k64_base', 'c')
 cc = meson.get_compiler('c')
 
 # dependencies
-dep_queue = subproject('base_queue').get_variable('dep_queue')
-m_dep = cc.find_library('m', required : false)
-dependencies = [dep_queue, m_dep]
+dependencies = [
+    subproject('base_queue').get_variable('dep_queue'),
+    meson.get_compiler('c').find_library('m')
+]
 
 # Project include path.
 local_headers = ['include']
 
 # List of C sources to compile. Relative to project root.
 c_sources = [
-    # kernel files
+    # kernel
     'src/kernel/hardfault.c',
     'src/kernel/file_table.c',
     'src/kernel/environment.c',
@@ -27,7 +28,12 @@ c_sources = [
     'src/drivers/devices/altimu.c',
     # Applications/Programs
     'src/programs/main.c',
-    'src/programs/MahonyAHRS.c'
+    'src/programs/MahonyAHRS.c',
+    # libc
+    'src/libc/errno.c',
+    'src/libc/string.c',
+    # drivers
+    # programs
 ]
 
 # List of ASM sources to compile.  Relative to project root.
@@ -68,7 +74,7 @@ main = executable(
     'main.elf',
     c_sources,
     include_directories: _incl_dirs,
-    link_with: asm_static_object,
+    link_whole: asm_static_object,
     dependencies: dependencies,
     install: true,
     install_dir: false
