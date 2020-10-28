@@ -21,6 +21,18 @@
 #define ALP_WINDOW 7
 #define ALP_WINDOW_INIT {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
+#define MAG_OFFSET_X -0.002f
+#define MAG_OFFSET_Y -0.054f
+#define MAG_OFFSET_Z -0.004f
+
+#define ACC_OFFSET_X -0.01f
+#define ACC_OFFSET_Y 0.872f
+#define ACC_OFFSET_Z 1.028f
+
+#define GYRO_OFFSET_X 0.010f
+#define GYRO_OFFSET_Y -0.085f
+#define GYRO_OFFSET_Z -0.047f
+
 //#define RAWPLOT
 #ifdef RAWPLOT
     #define DELAY 15000 * 10
@@ -279,13 +291,23 @@ int main(void) {
 
     GPIOB->PSOR |= (1 << 21);
     GPIOB->PCOR |= (1 << 22);
-    calibrate_mag();
-    GPIOB->PCOR |= (1 << 21);
-    GPIOB->PCOR |= (1 << 22);
+//    calibrate_mag();
+//    GPIOB->PCOR |= (1 << 21);
+//    GPIOB->PCOR |= (1 << 22);
+    moffx = MAG_OFFSET_X;
+    moffy = MAG_OFFSET_Y;
+    moffz = MAG_OFFSET_Z;
     for(volatile int h = 0; h < 10000000; h++);
     GPIOB->PCOR |= (1 << 21);
     GPIOB->PSOR |= (1 << 22);
-    calibrate_gxl();
+//    calibrate_gxl();
+    aoffx = ACC_OFFSET_X;
+    aoffy = ACC_OFFSET_Y;
+    aoffz = ACC_OFFSET_Z;
+
+    goffx = GYRO_OFFSET_X;
+    goffy = GYRO_OFFSET_Y;
+    goffz = GYRO_OFFSET_Z;
     GPIOB->PSOR |= (1 << 21);
     GPIOB->PSOR |= (1 << 22);
 
@@ -349,9 +371,8 @@ int main(void) {
 
 //        altimu_read_bar(I2C_BUS_NUM, bar_data, &i2c_free);
 //        for(volatile int i = 0; i < DELAY; i++);
-
+#ifndef RAWPLOT
         MahonyAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz);
-
         write(0, &q0, 4);
         write(0, ",", 1);
         write(0, &q1, 4);
@@ -360,6 +381,17 @@ int main(void) {
         write(0, ",", 1);
         write(0, &q3, 4);
         write(0, "\n", 1);
+#else
+        write(0, &gx, 4);
+        write(0, ",", 1);
+        write(0, &gy, 4);
+        write(0, ",", 1);
+        write(0, &gz, 4);
+        write(0, ",", 1);
+        write(0, &q3, 4);
+        write(0, "\n", 1);
+#endif
+
     }
     
     for(;;);

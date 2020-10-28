@@ -177,7 +177,7 @@ def quat_to_ypr(q):
     roll  = math.atan2(2.0 * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3])
     pitch *= 180.0 / math.pi
     yaw   *= 180.0 / math.pi
-    yaw   -= -0.13  # Declination at Chandrapur, Maharashtra is - 0 degress 13 min
+    yaw   -= +1.15  # Declination at Chandrapur, Maharashtra is - 0 degress 13 min
     roll  *= 180.0 / math.pi
     return [yaw, pitch, roll]
 
