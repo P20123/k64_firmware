@@ -16,6 +16,7 @@ c_sources = [
     'src/nongnu/unistd.c',
     'src/drivers/uart.c',
     'src/drivers/servo_ctrl.c',
+    'src/drivers/esc_ctrl.c',
     'src/programs/floatingpoint.c',
     'src/programs/main.c'
 ]

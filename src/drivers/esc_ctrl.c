@@ -2,7 +2,7 @@
  * Servo control
  */
 #include "MK64F12.h"
-#include "drivers/servo_ctrl.h"
+#include "drivers/esc_ctrl.h"
 
 /*From clock setup 0 in system_MK64f12.c*/
 #ifndef GCC
@@ -13,7 +13,7 @@
 #define CORRECTION              50 //3200 //do we even need correction?
 #define CLOCK					SystemCoreClock //DEFAULT_SYSTEM_CLOCK
 #define PWM_FREQUENCY			50
-#define FTM3_MOD_VALUE			(CLOCK/(PWM_FREQUENCY)) + CORRECTION
+#define FTM0_MOD_VALUE		    (CLOCK/(2*PWM_FREQUENCY)) + CORRECTION
 #define SERVO_SAUCE             27
 
 /*const uint16_t POSITIONS[9] = {
@@ -29,72 +29,72 @@
 }; */
 
 /*
- * Change the angle of the left servo
+ * Change the angle of the left servo, maybe duty cycle would be better?
  */
-void servo_set_leftangle(int16_t value) {
+void esc_set_leftduty(unsigned int duty) {
     //These values correspond to the servo limits
     //value = (value < 2485) ? 2485 : value;
     //value = (value > 3285) ? 3285 : value;
 
     // change the duty cycle
-    FTM3->CONTROLS[4].CnV = value;
+    FTM0->CONTROLS[0].CnV = (uint16_t) ((FTM0->MOD * duty) / 100);
 }
 
 /*
  * Change the angle of the right servo
  */
-void servo_set_rightangle(int16_t value){
+void esc_set_rightduty(unsigned int duty){
     //These values correspond to the servo limits
     //value = (value < 2485) ? 2485 : value;
     //value = (value > 3285) ? 3285 : value;
 
     //change the duty cycle
-    FTM3->CONTROLS[5].CnV = value;
+    FTM0->CONTROLS[1].CnV = (uint16_t) ((FTM0->MOD * duty) / 100);
 }
 
 /*
- * Initialize the servo IO
+ * Initialize the ESC IO
  */
-void servo_init_io() {
+void esc_init_io() {
     // Enable clock on PORT C
     SIM -> SCGC5 |= SIM_SCGC5_PORTC_MASK;
 
-    // route ftm3 to port c pins
-    PORTC->PCR[8]  = PORT_PCR_MUX(3)  | PORT_PCR_DSE_MASK;  // ch4
-    PORTC->PCR[9]  = PORT_PCR_MUX(3)  | PORT_PCR_DSE_MASK;
+    // route ftm0 to port c pins
+    PORTC->PCR[1]  = PORT_PCR_MUX(4)  | PORT_PCR_DSE_MASK;  
+    PORTC->PCR[2]  = PORT_PCR_MUX(4)  | PORT_PCR_DSE_MASK;
 }
 
 /*
- * Initialize the servo pwm, use a 50 Hz frequency
+ * Initialize the esc pwm, use a 100 Hz frequency to start
  */
-void servo_init_pwm() {
-    // 12.2.13 Enable the Clock to the FTM3 Module
-    SIM -> SCGC3 |= SIM_SCGC3_FTM3_MASK;
+void esc_init_pwm() {
+    // 12.2.13 Enable the Clock to the FTM0 Module
+    SIM -> SCGC6 |= SIM_SCGC6_FTM0_MASK;
 
     // 39.3.10 Disable Write Protection
-    FTM3->MODE |= FTM_MODE_WPDIS_MASK;
+    FTM0->MODE |= FTM_MODE_WPDIS_MASK;
     
     // 39.3.4 FTM Counter Value: Initialize the CNT to 0 before writing to MOD
-    FTM3->CNT = 0;
+    FTM0->CNT = 0;
 
     // 39.3.8 Set the Counter Initial Value to 0
-    FTM3->CNTIN = 0;
+    FTM0->CNTIN = 0;
 
     // 39.3.5 Set the Modulo resister
-    FTM3->MOD = FTM3_MOD_VALUE;
+    FTM0->MOD = FTM0_MOD_VALUE;
 
     // 39.3.6 Set the Status and Control of both channels
     // Used to configure mode, edge and level selection
     // See Table 39-67,  Edge-aligned PWM, High-true pulses (clear out on match)
-    FTM3->CONTROLS[4].CnSC |= FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK;
-    FTM3->CONTROLS[4].CnSC &= ~FTM_CnSC_ELSA_MASK;
+    FTM0->CONTROLS[0].CnSC |= FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK;
+    FTM0->CONTROLS[0].CnSC &= ~FTM_CnSC_ELSA_MASK;
 
-    FTM3->CONTROLS[5].CnSC |= FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK; 
-    FTM3->CONTROLS[5].CnSC &= ~FTM_CnSC_ELSA_MASK;
+    FTM0->CONTROLS[1].CnSC |= FTM_CnSC_MSB_MASK | FTM_CnSC_ELSB_MASK; 
+    FTM0->CONTROLS[1].CnSC &= ~FTM_CnSC_ELSA_MASK;
 
-    // 39.3.3 FTM Setup
+    // 40.3.3 FTM Setup
     // Set prescale value to 4
     // Chose system clock source
     // Timer Overflow Interrupt Enable
-    FTM3->SC = FTM_SC_PS(5) | FTM_SC_CLKS(1) | FTM_SC_TOIE_MASK;
+    FTM0->SC = FTM_SC_PS(5) | FTM_SC_CLKS(1) | FTM_SC_TOIE_MASK;
 }
