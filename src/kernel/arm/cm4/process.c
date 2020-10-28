@@ -5,6 +5,13 @@
  * Fake an exception entry frame for a process, which makes starting a new
  * process identical to switching to it.  A context switch stack push is also
  * faked here, to make it even easier to start the process.
+ *
+ * The constants, as well as the source for the general flow of this function
+ * is taken from the ARMv7-M Technical Reference Manual, Section B 1.5.6:
+ * Exception Entry Behavior.
+ * This function is intentionally structured to look exactly like the
+ * pseudocode written in that section for the ExceptionEntry() function.
+ *
  * @param proc PCB whose stack should be initialized.
  * @param uses_fp whether the process will use the floating point unit or not.
  * @param kernel_mode whether the process will run in kernel mode or not.
