@@ -6,3 +6,11 @@ void yield(void) {
     asm("dsb");
     asm("isb");
 }
+
+/**
+ * Force the scheduler to run and preempt the currently running process.
+ * This can be disabled by disabling the systick timer.
+ */
+void SysTick_Handler(void) {
+    yield();
+}
