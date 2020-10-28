@@ -1,6 +1,6 @@
 #include <MK64F12.h>
 #include <drivers/kinetis/uart.h>
-#include <kernel/kernel_ftab.h>
+#include <kernel/file.h>
 #include <queue/queue.h>
 #include <stdbool.h>
 
@@ -171,7 +171,15 @@ int uart_init(uart_config conf) {
 unsigned int uart_write(uart_context *context, char *buf, unsigned int bytes) {
     unsigned int bytes_written = 0;
     if(bytes == 0) {
-        bytes_written = context->txq->cap - context->txq->size;
+        /**
+         * This was originally put in place to support returning the number of
+         * bytes available to be written without blocking, as per man 3 write.
+         * However, doing so makes blocking until a write completes difficult,
+         * since write() would rarely ever return 0.
+         * In the future, it may be better to simply break the UNIX interface,
+         * and have an available() function.
+         */
+        /*bytes_written = context->txq->cap - context->txq->size;*/
         goto done;
     }
     do {

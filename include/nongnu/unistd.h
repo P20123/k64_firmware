@@ -1,5 +1,4 @@
 #pragma once
-#include <kernel/kernel_ftab.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>

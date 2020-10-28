@@ -12,7 +12,7 @@ uart_config uart0_conf = {
     .tx_alt = 3,
     .rt_alt = 255,
     .ct_alt = 255,
-    .baud = 9600,
+    .baud = 115200,
     .input_clock_rate = 120000000,
     .uart_clock_gate_base = &(SIM->SCGC4),
     .port_clock_gate_base = &(SIM->SCGC5),
@@ -49,3 +49,4 @@ uart_config uart3_conf = {
     .twfifo_sz = 0
 };
 
+int uart0_fileno;

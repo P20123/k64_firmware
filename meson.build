@@ -18,19 +18,22 @@ c_sources = [
     'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
-    'src/kernel/sbrk.c',
-    'src/nongnu/unistd.c',
+    'src/kernel/file_table.c',
+    'src/kernel/hardfault.c',
+    'src/kernel/environment.c',
     # libc
     'src/libc/errno.c',
+    'src/nongnu/unistd.c',
     'src/libc/string.c',
     # drivers
+    'src/drivers/kinetis/uart.c',
     # programs
+    'src/programs/pcb_scratch.c'
 ]
 
 # List of ASM sources to compile.  Relative to project root.
 asm_sources = [
-    'src/asmlib/queue.s',
-    'src/asmlib/uart_driver.s'
+    'src/programs/enter_proc.s'
 ]
 
 ## project setup
