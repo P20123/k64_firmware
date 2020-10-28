@@ -13,7 +13,7 @@
 #define CORRECTION              0 //3200 //do we even need correction?
 #define CLOCK					SystemCoreClock //DEFAULT_SYSTEM_CLOCK
 #define PWM_FREQUENCY			50
-#define FTM3_MOD_VALUE			(CLOCK/PWM_FREQUENCY) - CORRECTION
+#define FTM3_MOD_VALUE			(CLOCK/(2*PWM_FREQUENCY)) - CORRECTION
 #define SERVO_SAUCE             27
 
 /*const uint16_t POSITIONS[9] = {
