@@ -12,6 +12,7 @@
 #include <drivers/kinetis/i2c.h>
 #include <drivers/kinetis/uart.h>
 #include <drivers/devices/altimu.h>
+#include <drivers/devices/servos.h>
 
 /**
  * Safety check - deadloop if there is no init process linked.
@@ -45,6 +46,11 @@ void kernel_main(const char *cmdline) {
     altimu_mag_init(0);
     altimu_bar_init(0);
     /** END I2C SENSOR INIT **/
+
+    /** SERVO INIT **/
+    servo_init_io();
+    servo_init_pwm();
+    /** END SERVO INIT **/
 
     /** PROCESS SCHEDULER INITIALIZATION **/
     // SVCall has priority 14
