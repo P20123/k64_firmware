@@ -29,7 +29,7 @@ typedef struct {
  */
 typedef struct {
     pcb_t **proc_list;
-    pcb_t *curr_proc;
+    pcb_t **curr_proc;
     int next_pid;
     int num_processes;
 } proc_table_t;
