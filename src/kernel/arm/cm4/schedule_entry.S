@@ -44,6 +44,7 @@ PendSV_Handler:
 
     // save the psp to the pcb
     ldr r0, [r12, #4] // r0 has curr_proc (pointer)
+    ldr r0, [r0, #0]
     str r1, [r0, #0] // save psp (points to END of stack AFTER context push)
 
     // save the exc_return value to the pcb
