@@ -29,10 +29,12 @@ void kernel_main(const char *cmdline) {
     // device initialization here
 
     /** PROCESS SCHEDULER INITIALIZATION **/
-    // SVCall has priority 14
-    SCB->SHP[2] |= (14 << 24);
-    // PendSV has priority 15
-    SCB->SHP[3] |= (15 << 16);
+    // SysTick has priority 15
+    SCB->SHP[3] |= (15 << 24);
+    // PendSV has priority 14
+    SCB->SHP[3] |= (14 << 16);
+    // SVCall has priority 13
+    SCB->SHP[2] |= (13 << 24);
     scheduler_init(&process_table, &process_list);
 
     /** USER PROCESS START **/
