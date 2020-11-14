@@ -34,10 +34,6 @@ volatile float twoKi = twoKiDef;                                            // 2
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;                  // quaternion of sensor frame relative to auxiliary frame
 volatile float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f; // integral error terms scaled by Ki
 
-//---------------------------------------------------------------------------------------------------
-// Function declarations
-
-
 //====================================================================================================
 // Functions
 void MahonyAHRSinit() {
@@ -73,13 +69,13 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
     if(!((fabs(ax) < 0.00001f) && (fabs(ay) < 0.00001f) && (fabs(az) < 0.00001f))) {
 
         // Normalise accelerometer measurement
-        recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+        recipNorm = 1 / sqrtf(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
         ay *= recipNorm;
         az *= recipNorm;     
 
         // Normalise magnetometer measurement
-        recipNorm = invSqrt(mx * mx + my * my + mz * mz);
+        recipNorm = 1 / sqrtf(mx * mx + my * my + mz * mz);
         mx *= recipNorm;
         my *= recipNorm;
         mz *= recipNorm;   
@@ -149,7 +145,7 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
     q3 += (qa * gz + qb * gy - qc * gx); 
     
     // Normalise quaternion
-    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    recipNorm = 1 / sqrtf(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     q0 *= recipNorm;
     q1 *= recipNorm;
     q2 *= recipNorm;
@@ -169,7 +165,7 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
     if(!((fabs(ax) < 0.00001f) && (fabs(ay) < 0.00001f) && (fabs(az) < 0.00001f))) {
 
         // Normalise accelerometer measurement
-        recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+        recipNorm = 1 / sqrtf(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
         ay *= recipNorm;
         az *= recipNorm;        
@@ -218,25 +214,11 @@ void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float
     q3 += (qa * gz + qb * gy - qc * gx); 
     
     // Normalise quaternion
-    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    recipNorm = 1 / sqrtf(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     q0 *= recipNorm;
     q1 *= recipNorm;
     q2 *= recipNorm;
     q3 *= recipNorm;
-}
-
-//---------------------------------------------------------------------------------------------------
-// Fast inverse square-root
-// See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
-
-float invSqrt(float x) {
-    float halfx = 0.5f * x;
-    float y = x;
-    long i = *(long*)&y;
-    i = 0x5f3759df - (i>>1);
-    y = *(float*)&i;
-    y = y * (1.5f - (halfx * y * y));
-    return y;
 }
 
 //====================================================================================================
