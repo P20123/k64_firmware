@@ -9,6 +9,9 @@
 #include <kernel/schedule.h> /* Process scheduler */
 #include <kernel/private/static_memory.h> /* Scheduler memory allocations */
 #include <environment.h>
+#include <drivers/kinetis/i2c.h>
+#include <drivers/kinetis/uart.h>
+#include <drivers/devices/altimu.h>
 #include <drivers/devices/status_leds.h>
 
 /**
@@ -23,17 +26,31 @@ void kernel_main(const char *cmdline) {
 
     // kernel structure initialization here
     ftab_init();
+
     // peripheral initialization here
-    /** UART INIT **/
 #ifdef KINETIS_USE_UART
+    /** UART INIT **/
     uart0_conf.input_clock_rate = SystemCoreClock;
     uart0_fileno = uart_init(uart0_conf);
 #endif
+
 #ifdef KINETIS_USE_I2C
+    /** I2C INIT **/
+    i2c_init(i2c0_conf, SystemCoreClock / 2);
+    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    PORTB->PCR[2] |= PORT_PCR_MUX(2);
+    PORTB->PCR[3] |= PORT_PCR_MUX(2);
 #endif
 
     // device initialization here
 #ifdef DEVICE_EN_ALTIMU
+    /** ALTIMU INIT **/
+    altimu_gxl_init(0);
+    altimu_mag_init(0);
+    altimu_bar_init(0);
+#endif
+
+#ifdef DEVICE_EN_SERVO
 #endif
 
 #ifdef DEVICE_EN_STATUS_LEDS

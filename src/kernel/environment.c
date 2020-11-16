@@ -1,5 +1,6 @@
 #include <environment.h>
 #include <drivers/kinetis/uart.h>
+#include <drivers/kinetis/i2c.h>
 
 // UART 0 CONFIGURATION (OpenSDA UART <-> USB)
 uart_config uart0_conf = {
@@ -48,5 +49,15 @@ uart_config uart3_conf = {
     .rwfifo_sz = 0,
     .twfifo_sz = 0
 };
+
+i2c_config_t i2c0_conf = {
+    .i2c_num = 0,
+    .baud = 90000,
+    .stophold = true,
+    .interrupt = true,
+    .filter_clocks = 0,
+    .priority = 0
+};
+
 
 int uart0_fileno;
