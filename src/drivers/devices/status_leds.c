@@ -2,10 +2,6 @@
 #include <drivers/devices/status_leds.h>
 
 /*************
- * CONSTANTS
- *************/
-
-/*************
  * FUNCTIONS
  *************/
 int status_leds_init() {

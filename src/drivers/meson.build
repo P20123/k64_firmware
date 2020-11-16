@@ -33,7 +33,7 @@ if devices_required.contains('altimu')
         ])
 endif
 if devices_required.contains('status_leds')
-        add_project_arguments('-DDEVICE_EN_LEDS', language: 'c')
+        add_project_arguments('-DDEVICE_EN_STATUS_LEDS', language: 'c')
         c_sources += files([
             'devices/status_leds.c',
         ])

@@ -3,13 +3,10 @@
 /**********
  * MACROS
  **********/
-#define GREEN_LED_ON()  GPIOC->PSOR |= (1 << 16)
-
-#define GREEN_LED_OFF() GPIOC->PCOR |= (1 << 16)
-
-#define RED_LED_ON()
-
-#define RED_LED_OFF()
+#define GREEN_LED_ON()  GPIOC->PSOR |= (1 << 17)
+#define GREEN_LED_OFF() GPIOC->PCOR |= (1 << 17)
+#define RED_LED_ON()    GPIOC->PSOR |= (1 << 16)
+#define RED_LED_OFF()   GPIOC->PCOR |= (1 << 16)
 
 /**************
  * PROTOTYPES
