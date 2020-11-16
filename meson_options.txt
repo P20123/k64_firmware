@@ -15,7 +15,5 @@ option(
 option(
     'applications',
     type: 'array',
-    choices: ['flight_control'],
-    value: ['flight_control'],
     description: 'Controls the profile of programs to enable in the build.'
 )
