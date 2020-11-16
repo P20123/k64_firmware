@@ -9,44 +9,29 @@ dependencies = [
 # Project include path.
 local_headers = ['include']
 
-# List of C sources to compile. Relative to project root.
-c_sources = [
-    # kernel
-    'src/kernel/hardfault.c',
-    'src/kernel/kernel_support.c',
-    'src/kernel/environment.c',
-    'src/kernel/abort.c',
-    'src/kernel/boot.c',
-    'src/kernel/kernel_main.c',
-    'src/kernel/file_table.c',
-    'src/kernel/hardfault.c',
-    'src/kernel/environment.c',
-    # libc
-    'src/libc/errno.c',
-    'src/nongnu/unistd.c',
-    'src/libc/string.c',
-    # drivers
-    'src/drivers/kinetis/uart.c',
-    # programs
-    'src/programs/pcb_scratch.c'
-]
-
-# List of ASM sources to compile.  Relative to project root.
-asm_sources = [
-    'src/programs/enter_proc.s'
-]
-
 ## project setup
-# CPU to use (default: on FRDM-K64F)
-add_project_arguments('-DCPU_MK64FN1M0VLL12', language: 'c')
+# These are configurations supplied by meson_options.txt, these variable names
+# are needed by the subdir meson.build definitions.
+cpu_arch = get_option('cpu_arch')
+target_system = get_option('target_system')
+applications = get_option('applications')
 
-# Set the entry point to be bootloader_entry
-add_project_arguments('-D__START=bootloader_entry', language: 'c')
-
-# use default clock?
-# This is Kinetis-setup specific, and configures the Freescale MCG on boot.
-add_project_arguments(['-DCLOCK_SETUP=1'], language: 'c')
-
+# Source files are determined in each sub-directory, based on the project
+# configuration.
+c_sources = []
+asm_sources = []
+# device drivers (not peripheral devices) needed by the project
+devices_required = []
+# peripheral drivers needed by the project
+peripherals_required = []
+# applications
+subdir('src/programs')
+# drivers
+subdir('src/drivers')
+# Kernel
+subdir('src/kernel')
+# custom libc
+subdir('src/libc')
 
 ### DON'T EDIT BELOW THIS LINE ###
 

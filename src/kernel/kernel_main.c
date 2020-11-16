@@ -22,11 +22,19 @@ void kernel_main(const char *cmdline) {
 
     // kernel structure initialization here
     ftab_init();
+    // peripheral initialization here
     /** UART INIT **/
+#ifdef KINETIS_USE_UART
     uart0_conf.input_clock_rate = SystemCoreClock;
     uart0_fileno = uart_init(uart0_conf);
+#endif
+#ifdef KINETIS_USE_I2C
+#endif
 
     // device initialization here
+#ifdef DEVICE_EN_ALTIMU
+#endif
+
 
     /** PROCESS SCHEDULER INITIALIZATION **/
     // SysTick has priority 15
