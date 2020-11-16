@@ -19,11 +19,3 @@ option(
     value: ['flight_control'],
     description: 'Controls the profile of programs to enable in the build.'
 )
-
-option(
-    'available_devices',
-    type: 'array',
-    choices: ['flight_control'],
-    value: ['flight_control'],
-    description: 'List of devices which are needed by the target system.'
-)
