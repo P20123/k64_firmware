@@ -1,0 +1,29 @@
+option(
+    'cpu_arch',
+    type: 'string',
+    value: 'arm-cortexm4',
+    description: 'Controls the target architecture.'
+)
+
+option(
+    'target_system',
+    type: 'string',
+    value: 'MK64F12',
+    description: 'Controls the target system.'
+)
+
+option(
+    'applications',
+    type: 'array',
+    choices: ['flight_control'],
+    value: ['flight_control'],
+    description: 'Controls the profile of programs to enable in the build.'
+)
+
+option(
+    'available_devices',
+    type: 'array',
+    choices: ['flight_control'],
+    value: ['flight_control'],
+    description: 'List of devices which are needed by the target system.'
+)
