@@ -9,6 +9,7 @@
 #include <kernel/schedule.h> /* Process scheduler */
 #include <kernel/private/static_memory.h> /* Scheduler memory allocations */
 #include <environment.h>
+#include <drivers/devices/status_leds.h>
 
 /**
  * Safety check - deadloop if there is no init process linked.
@@ -35,6 +36,9 @@ void kernel_main(const char *cmdline) {
 #ifdef DEVICE_EN_ALTIMU
 #endif
 
+#ifdef DEVICE_EN_STATUS_LEDS
+    status_leds_init();
+#endif
 
     /** PROCESS SCHEDULER INITIALIZATION **/
     // SysTick has priority 15
