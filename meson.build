@@ -13,27 +13,43 @@ local_headers = ['include']
 c_sources = [
     # kernel
     'src/kernel/hardfault.c',
-    'src/kernel/kernel_support.c',
     'src/kernel/environment.c',
-    'src/kernel/abort.c',
     'src/kernel/boot.c',
     'src/kernel/kernel_main.c',
     'src/kernel/file_table.c',
     'src/kernel/hardfault.c',
     'src/kernel/environment.c',
+    'src/kernel/stream_io.c',
+    'src/kernel/service_dispatch.c',
+    'src/kernel/schedule.c',
+    'src/kernel/private/static_memory.c',
+    # cortex-m4 port
+    'src/kernel/arm/cm4/process.c',
+    'src/kernel/arm/cm4/multitasking.c',
     # libc
     'src/libc/errno.c',
     'src/nongnu/unistd.c',
     'src/libc/string.c',
     # drivers
     'src/drivers/kinetis/uart.c',
+    'src/drivers/kinetis/i2c.c',
+    'src/drivers/arm/cm4/systick.c',
+    # devices
+    'src/drivers/devices/altimu.c',
+    'src/drivers/devices/servos.c',
+    # algorithms
+    'src/algo/mahony.c',
     # programs
-    'src/programs/pcb_scratch.c'
+    'src/programs/sensor_read.c',
+    'src/programs/sensor_fusion.c',
+    'src/programs/flight_ctrl.c',
+    'src/programs/main.c',
 ]
 
 # List of ASM sources to compile.  Relative to project root.
 asm_sources = [
-    'src/programs/enter_proc.s'
+    'src/kernel/arm/cm4/syscall_entry.S',
+    'src/kernel/arm/cm4/schedule_entry.S'
 ]
 
 ## project setup

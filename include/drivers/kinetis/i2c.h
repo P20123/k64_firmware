@@ -1,6 +1,7 @@
 #pragma once
 #include <MK64F12.h>
 #include <stdbool.h>
+#include <multitasking.h>
 
 /*************
  * CONSTANTS
@@ -38,6 +39,10 @@
 /* This macro blocks until the I2C transaction in the specified channel
    is complete. Used in I2C device initialization. */
 #define I2C_TX_WAIT(x) while(i2c_chs[x].status != I2C_AVAILABLE);
+
+/* This macro blocks until the I2C transaction in the specified channel
+ * is complete, but yields the CPU to other processes. */
+#define I2C_TX_YIELD(x) while(i2c_chs[x].status != I2C_AVAILABLE) {yield();};
 
 /*************
  * DATATYPES

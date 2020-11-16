@@ -9,6 +9,10 @@
 #include <kernel/schedule.h> /* Process scheduler */
 #include <kernel/private/static_memory.h> /* Scheduler memory allocations */
 #include <environment.h>
+#include <drivers/kinetis/i2c.h>
+#include <drivers/kinetis/uart.h>
+#include <drivers/devices/altimu.h>
+#include <drivers/devices/servos.h>
 
 /**
  * Safety check - deadloop if there is no init process linked.
@@ -22,11 +26,31 @@ void kernel_main(const char *cmdline) {
 
     // kernel structure initialization here
     ftab_init();
+
     /** UART INIT **/
     uart0_conf.input_clock_rate = SystemCoreClock;
     uart0_fileno = uart_init(uart0_conf);
+    /** END UART INIT **/
+
+    /** I2C INIT **/
+    i2c_init(i2c0_conf, SystemCoreClock / 2);
+    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    PORTB->PCR[2] |= PORT_PCR_MUX(2);
+    PORTB->PCR[3] |= PORT_PCR_MUX(2);
+    /** END I2C INIT **/
 
     // device initialization here
+
+    /** I2C SENSOR INIT **/
+    altimu_gxl_init(0);
+    altimu_mag_init(0);
+    altimu_bar_init(0);
+    /** END I2C SENSOR INIT **/
+
+    /** SERVO INIT **/
+    servo_init_io();
+    servo_init_pwm();
+    /** END SERVO INIT **/
 
     /** PROCESS SCHEDULER INITIALIZATION **/
     // SysTick has priority 15
