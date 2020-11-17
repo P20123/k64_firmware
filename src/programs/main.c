@@ -18,7 +18,6 @@ int init_main(void) {
 #ifdef TASK_EN_SENSOR_READ
     process_init(&sensor_read_app, &sensor_read_main, sensor_read_stack,
                  SENSOR_READ_STACK_SIZE, true, false);
-
     schedule_process(&process_table, &sensor_read_app);
 #endif
 
