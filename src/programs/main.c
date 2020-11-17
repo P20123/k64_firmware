@@ -20,9 +20,5 @@ int init_main(void) {
                  SENSOR_READ_STACK_SIZE, true, false);
     schedule_process(&process_table, &sensor_read_app);
 #endif
-
-#if !defined(TASK_EN_SENSOR_READ)
-    for(;;);
-#endif
     return 0;
 }
