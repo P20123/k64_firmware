@@ -43,6 +43,32 @@ void kernel_main(const char *cmdline) {
 #endif
 
     // device initialization here
+    /** LPTMR WAIT **/
+    uint16_t time;
+    uint16_t prev_time;
+
+    SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
+    // LPO 1kHz input for lptmr
+    LPTMR0->PSR |= (1 << LPTMR_PSR_PCS_SHIFT);
+    // bypass prescaler
+    LPTMR0->PSR |= (1 << LPTMR_PSR_PBYP_SHIFT);
+
+    // free-running mode
+    LPTMR0->CSR |= (1 << LPTMR_CSR_TFC_SHIFT);
+    // enable lptmr as a 16-second period counter without interrupts.
+    LPTMR0->CSR |= (1 << LPTMR_CSR_TEN_SHIFT);
+
+    // page 1104 of the ref. manual.  write before read... why?
+    LPTMR0->CNR = 0;
+
+    time = LPTMR0->CNR;
+    prev_time = time;
+
+    while(abs(time - prev_time) < 1000) {
+        LPTMR0->CNR = 0;
+        time = LPTMR0->CNR;
+    }
+
 #ifdef DEVICE_EN_ALTIMU
     /** ALTIMU INIT **/
     altimu_gxl_init(0);
