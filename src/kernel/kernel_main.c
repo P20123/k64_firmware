@@ -43,9 +43,17 @@ void kernel_main(const char *cmdline) {
 #endif
 
     // device initialization here
+#ifdef DEVICE_EN_STATUS_LEDS
+    /** STATUS LED INIT **/
+    status_leds_init();
+#endif
+
     /** LPTMR WAIT **/
     uint16_t time;
     uint16_t prev_time;
+
+    /* status LED to denote LPTMR wait */
+    GREEN_LED_ON();
 
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
     // LPO 1kHz input for lptmr
@@ -69,6 +77,9 @@ void kernel_main(const char *cmdline) {
         time = LPTMR0->CNR;
     }
 
+    /* status LED to denote LPTMR wait */
+    GREEN_LED_OFF();
+
 #ifdef DEVICE_EN_ALTIMU
     /** ALTIMU INIT **/
     altimu_gxl_init(0);
@@ -77,10 +88,6 @@ void kernel_main(const char *cmdline) {
 #endif
 
 #ifdef DEVICE_EN_SERVO
-#endif
-
-#ifdef DEVICE_EN_STATUS_LEDS
-    status_leds_init();
 #endif
 
     /** PROCESS SCHEDULER INITIALIZATION **/
