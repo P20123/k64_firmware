@@ -55,6 +55,7 @@ void kernel_main(const char *cmdline) {
     /* status LED to denote LPTMR wait */
     GREEN_LED_ON();
 
+    // enable clock for LPTMR
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
     // LPO 1kHz input for lptmr
     LPTMR0->PSR |= (1 << LPTMR_PSR_PCS_SHIFT);
@@ -72,7 +73,7 @@ void kernel_main(const char *cmdline) {
     time = LPTMR0->CNR;
     prev_time = time;
 
-    while(abs(time - prev_time) < 1000) {
+    while((time - prev_time) < 1000) {
         LPTMR0->CNR = 0;
         time = LPTMR0->CNR;
     }
