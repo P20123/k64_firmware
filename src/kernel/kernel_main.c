@@ -9,6 +9,9 @@
 #include <kernel/schedule.h> /* Process scheduler */
 #include <kernel/private/static_memory.h> /* Scheduler memory allocations */
 #include <environment.h>
+#include <drivers/kinetis/i2c.h>
+#include <drivers/kinetis/uart.h>
+#include <drivers/devices/altimu.h>
 #include <drivers/devices/status_leds.h>
 
 /**
@@ -23,21 +26,69 @@ void kernel_main(const char *cmdline) {
 
     // kernel structure initialization here
     ftab_init();
+
     // peripheral initialization here
-    /** UART INIT **/
 #ifdef KINETIS_USE_UART
+    /** UART INIT **/
     uart0_conf.input_clock_rate = SystemCoreClock;
     uart0_fileno = uart_init(uart0_conf);
 #endif
+
 #ifdef KINETIS_USE_I2C
+    /** I2C INIT **/
+    i2c_init(i2c0_conf, SystemCoreClock / 2);
+    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    PORTB->PCR[2] |= PORT_PCR_MUX(2);
+    PORTB->PCR[3] |= PORT_PCR_MUX(2);
 #endif
 
     // device initialization here
-#ifdef DEVICE_EN_ALTIMU
+#ifdef DEVICE_EN_STATUS_LEDS
+    /** STATUS LED INIT **/
+    status_leds_init();
 #endif
 
-#ifdef DEVICE_EN_STATUS_LEDS
-    status_leds_init();
+    /** LPTMR WAIT **/
+    uint16_t time;
+    uint16_t prev_time;
+
+    /* status LED to denote LPTMR wait */
+    GREEN_LED_ON();
+
+    // enable clock for LPTMR
+    SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
+    // LPO 1kHz input for lptmr
+    LPTMR0->PSR |= (1 << LPTMR_PSR_PCS_SHIFT);
+    // bypass prescaler
+    LPTMR0->PSR |= (1 << LPTMR_PSR_PBYP_SHIFT);
+
+    // free-running mode
+    LPTMR0->CSR |= (1 << LPTMR_CSR_TFC_SHIFT);
+    // enable lptmr as a 16-second period counter without interrupts.
+    LPTMR0->CSR |= (1 << LPTMR_CSR_TEN_SHIFT);
+
+    // page 1104 of the ref. manual.  write before read... why?
+    LPTMR0->CNR = 0;
+
+    time = LPTMR0->CNR;
+    prev_time = time;
+
+    while((time - prev_time) < 1000) {
+        LPTMR0->CNR = 0;
+        time = LPTMR0->CNR;
+    }
+
+    /* status LED to denote LPTMR wait */
+    GREEN_LED_OFF();
+
+#ifdef DEVICE_EN_ALTIMU
+    /** ALTIMU INIT **/
+    altimu_gxl_init(0);
+    altimu_mag_init(0);
+    altimu_bar_init(0);
+#endif
+
+#ifdef DEVICE_EN_SERVO
 #endif
 
     /** PROCESS SCHEDULER INITIALIZATION **/
