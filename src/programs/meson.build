@@ -34,3 +34,14 @@ if get_variable('applications').contains('xpc_relay')
     ])
     dependencies += [dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])]
 endif
+
+if get_variable('applications').contains('xpc_spammer')
+    add_project_arguments('-DTASK_EN_XPC_SPAMMER', language: 'c')
+    peripherals_required += ['uart']
+    devices_required += ['status_leds']
+
+    c_sources += files([
+        'xpc_spammer.c',
+    ])
+    dependencies += [dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])]
+endif

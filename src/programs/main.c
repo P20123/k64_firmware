@@ -28,5 +28,11 @@ int init_main(void) {
             xpc_relay_event_loop_stack, XPC_RELAY_STACK_SIZE, false, false);
     schedule_process(&process_table, &xpc_relay_event_loop_app);
 #endif
+
+#ifdef TASK_EN_XPC_SPAMMER
+    process_init(&xpc_spammer_app, &xpc_spammer_main,
+            xpc_spammer_stack, XPC_SPAMMER_STACK_SIZE, false, false);
+    schedule_process(&process_table, &xpc_spammer_app);
+#endif
     return 0;
 }
