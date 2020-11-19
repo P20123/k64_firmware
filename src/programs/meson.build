@@ -1,6 +1,7 @@
 c_sources = get_variable('c_sources', [])
 devices_required = get_variable('devices_required', [])
 peripherals_required = get_variable('peripherals_required', [])
+    dependencies = get_variable('dependencies', [])
 
 # init main
 if get_variable('applications') == []
@@ -21,4 +22,15 @@ if get_variable('applications').contains('sensor_read')
     c_sources += files([
         'sensor_read.c',
     ])
+endif
+
+if get_variable('applications').contains('xpc_relay')
+    add_project_arguments('-DTASK_EN_XPC_RELAY', language: 'c')
+    peripherals_required += ['uart']
+    devices_required += ['status_leds']
+
+    c_sources += files([
+        'xpc_relay_event_loop.c',
+    ])
+    dependencies += [dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])]
 endif
