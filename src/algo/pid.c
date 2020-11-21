@@ -1,4 +1,4 @@
-#include <algorithms/pid.h>
+#include <algo/pid.h>
 #include <stdint.h>
 
 pid_context_t *pid_ctx_init(
