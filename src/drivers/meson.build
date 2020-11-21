@@ -24,6 +24,12 @@ if get_variable('target_system', 'MK64F12') == 'MK64F12'
             'kinetis/uart.c',
         ])
     endif
+    if peripherals_required.contains('ftm')
+        add_project_arguments('-DKINETIS_USE_FTM', language: 'c')
+        c_sources += files([
+            'kinetis/ftm.c',
+        ])
+    endif
 endif
 
 if devices_required.contains('altimu')
