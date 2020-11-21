@@ -44,3 +44,9 @@ if devices_required.contains('status_leds')
             'devices/status_leds.c',
         ])
 endif
+if devices_required.contains('motors')
+        add_project_arguments('-DDEVICE_EN_MOTORS', language: 'c')
+        c_sources += files([
+            'devices/motors.c',
+        ])
+endif

@@ -14,6 +14,7 @@
 #include <drivers/kinetis/ftm.h>
 #include <drivers/devices/altimu.h>
 #include <drivers/devices/status_leds.h>
+#include <drivers/devices/motors.h>
 
 /**
  * Safety check - deadloop if there is no init process linked.
@@ -27,6 +28,12 @@ void kernel_main(const char *cmdline) {
 
     // kernel structure initialization here
     ftab_init();
+
+    // initialize status leds first
+#ifdef DEVICE_EN_STATUS_LEDS
+    /** STATUS LED INIT **/
+    status_leds_init();
+#endif
 
     // peripheral initialization here
 #ifdef KINETIS_USE_UART
@@ -49,10 +56,6 @@ void kernel_main(const char *cmdline) {
 #endif
 
     // device initialization here
-#ifdef DEVICE_EN_STATUS_LEDS
-    /** STATUS LED INIT **/
-    status_leds_init();
-#endif
 
     /** LPTMR WAIT **/
     uint16_t time;
@@ -94,7 +97,12 @@ void kernel_main(const char *cmdline) {
     altimu_bar_init(0);
 #endif
 
-#ifdef DEVICE_EN_SERVO
+#ifdef DEVICE_EN_SERVOS
+#endif
+
+#ifdef DEVICE_EN_MOTORS
+    /** MOTOR INIT **/
+    lrmotor_init();
 #endif
 
     /** PROCESS SCHEDULER INITIALIZATION **/
