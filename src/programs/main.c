@@ -10,8 +10,9 @@
 #include <drivers/arm/cm4/systick.h>
 #include <drivers/devices/status_leds.h>
 #include <programs/sensor_read.h>
+#ifdef TASK_EN_XPC_RELAY
 #include <programs/xpc_relay_event_loop.h>
-#include <programs/xpc_spammer.h>
+#endif
 
 /**
  * Entry point for the process switcher.
