@@ -11,6 +11,7 @@
 #include <environment.h>
 #include <drivers/kinetis/i2c.h>
 #include <drivers/kinetis/uart.h>
+#include <drivers/kinetis/ftm.h>
 #include <drivers/devices/altimu.h>
 #include <drivers/devices/status_leds.h>
 
@@ -40,6 +41,11 @@ void kernel_main(const char *cmdline) {
     SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK;
     PORTB->PCR[2] |= PORT_PCR_MUX(2);
     PORTB->PCR[3] |= PORT_PCR_MUX(2);
+#endif
+
+#ifdef KINETIS_USE_FTM
+    ftm_init(ftm3_conf, SystemCoreClock);
+    ftm_init(ftm0_conf, SystemCoreClock);
 #endif
 
     // device initialization here
