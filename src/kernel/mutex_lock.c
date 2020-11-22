@@ -3,7 +3,7 @@
 
 int kernel_mutex_lock(int *lock) {
     int status = 0;
-    if(*lock == 0) {
+    if(*lock == 0 || *lock == get_syscaller_pid()) {
         *lock = get_syscaller_pid();
     }
     else {
