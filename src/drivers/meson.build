@@ -50,3 +50,9 @@ if devices_required.contains('motors')
             'devices/motors.c',
         ])
 endif
+if devices_required.contains('servos')
+        add_project_arguments('-DDEVICE_EN_SERVOS', language: 'c')
+        c_sources += files([
+            'devices/servos.c',
+        ])
+endif

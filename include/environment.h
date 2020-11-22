@@ -9,7 +9,5 @@ extern uart_config uart0_conf;
 extern uart_config uart3_conf;
 extern i2c_config_t i2c0_conf;
 extern ftm_config_t ftm3_conf;
-extern ftm_ch_config_t ftm3_ch5_conf;
-extern ftm_ch_config_t ftm3_ch4_conf;
 extern ftm_config_t ftm0_conf;
 extern int uart0_fileno;

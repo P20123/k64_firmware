@@ -15,6 +15,7 @@
 #include <drivers/devices/altimu.h>
 #include <drivers/devices/status_leds.h>
 #include <drivers/devices/motors.h>
+#include <drivers/devices/servos.h>
 
 /**
  * Safety check - deadloop if there is no init process linked.
@@ -98,6 +99,8 @@ void kernel_main(const char *cmdline) {
 #endif
 
 #ifdef DEVICE_EN_SERVOS
+    /** SERVO INIT **/
+    servo_init();
 #endif
 
 #ifdef DEVICE_EN_MOTORS
