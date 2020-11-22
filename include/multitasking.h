@@ -9,3 +9,7 @@
  * run.
  */
 void yield();
+
+int mutex_lock_yield(int *lock);
+int mutex_lock_spin(int *lock);
+int mutex_unlock(int *lock);

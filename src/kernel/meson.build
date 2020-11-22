@@ -10,6 +10,8 @@ c_sources += files([
     'service_dispatch.c',
     'schedule.c',
     'private/static_memory.c',
+    'mutex.c',
+    'mutex_lock.c',
 ])
 if get_variable('cpu_arch', 'arm-cortexm4') == 'arm-cortexm4'
     if get_variable('target_system', 'MK64F12') == 'MK64F12'
