@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <kernel/stream_io.h>
+#include <kernel/mutex.h>
 
 /**
  * Service call dispatcher
@@ -23,6 +24,15 @@ void svcall_main(uint32_t *args, char svnum) {
             // read
             *(uint32_t*)args[3] = kernel_read(args[0], (char*)args[1], args[2]);
         break;
+
+        case 3:
+            // mutex lock/unlock
+            if(args[1] == 0) {
+                *(uint32_t*)args[3] = kernel_mutex_lock(args[0]);
+            }
+            else {
+                *(uint32_t*)args[3] = kernel_mutex_unlock(args[0]);
+            }
         default:
         break;
     }
