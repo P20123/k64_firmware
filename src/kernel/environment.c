@@ -70,24 +70,6 @@ ftm_config_t ftm3_conf = {
     .cnt_init = 0u
 };
 
-ftm_ch_config_t ftm3_ch5_conf = {
-    .ftm_num = 3u,
-    .channel = 5u,
-    .port_clock_gate_base = &(SIM->SCGC5),
-    .port_clock_gate_mask = SIM_SCGC5_PORTC_MASK,
-    .pcr = &(PORTC->PCR[9]),
-    .alt = 3u
-};
-
-ftm_ch_config_t ftm3_ch4_conf = {
-    .ftm_num = 3u,
-    .channel = 4u,
-    .port_clock_gate_base = &(SIM->SCGC5),
-    .port_clock_gate_mask = SIM_SCGC5_PORTC_MASK,
-    .pcr = &(PORTC->PCR[8]),
-    .alt = 3u
-};
-
 ftm_config_t ftm0_conf = {
     .ftm_num = 0u,
     .ftm_clock_gate_base = &(SIM->SCGC6),
@@ -96,24 +78,6 @@ ftm_config_t ftm0_conf = {
     .prescalar = 2u,
     .clksrc = 1u,
     .cnt_init = 0u
-};
-
-ftm_ch_config_t ftm0_ch0_conf = {
-    .ftm_num = 0u,
-    .channel = 0u,
-    .port_clock_gate_base = &(SIM->SCGC5),
-    .port_clock_gate_mask = SIM_SCGC5_PORTC_MASK,
-    .pcr = &(PORTC->PCR[1]),
-    .alt = 4u
-};
-
-ftm_ch_config_t ftm0_ch1_conf = {
-    .ftm_num = 0u,
-    .channel = 1u,
-    .port_clock_gate_base = &(SIM->SCGC5),
-    .port_clock_gate_mask = SIM_SCGC5_PORTC_MASK,
-    .pcr = &(PORTC->PCR[2]),
-    .alt = 4u
 };
 
 int uart0_fileno;
