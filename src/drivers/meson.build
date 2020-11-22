@@ -1,6 +1,7 @@
 c_sources = get_variable('c_sources', [])
 devices_required = get_variable('devices_required', [])
 peripherals_required = get_variable('peripherals_required', [])
+algos_required = get_variable('algos_required', [])
 
 if get_variable('cpu_arch', 'arm-cortexm4') == 'arm-cortexm4'
     c_sources += files([

@@ -24,8 +24,12 @@ asm_sources = []
 devices_required = []
 # peripheral drivers needed by the project
 peripherals_required = []
+# algorithms needed by the project
+algos_required = []
 # applications
 subdir('src/programs')
+# algorithms
+subdir('src/algo')
 # drivers
 subdir('src/drivers')
 # Kernel

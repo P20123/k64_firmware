@@ -1,7 +1,8 @@
 c_sources = get_variable('c_sources', [])
 devices_required = get_variable('devices_required', [])
 peripherals_required = get_variable('peripherals_required', [])
-    dependencies = get_variable('dependencies', [])
+algos_required = get_variable('algos_required', [])
+dependencies = get_variable('dependencies', [])
 
 # init main
 if get_variable('applications') == []
@@ -35,6 +36,7 @@ if get_variable('applications').contains('xpc_relay')
     dependencies += [dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])]
 endif
 
+# flight control config
 if get_variable('applications').contains('flight_ctrl')
     add_project_arguments('-DTASK_EN_FLIGHT_CTRL', language: 'c')
     peripherals_required += ['ftm']
@@ -42,5 +44,17 @@ if get_variable('applications').contains('flight_ctrl')
 
     c_sources += files([
         'flight_ctrl.c',
+    ])
+endif
+
+# sensor fusion config
+if get_variable('applications').contains('sensor_fusion')
+    add_project_arguments('-DTASK_EN_SENSOR_FUSION', language: 'c')
+    peripherals_required += ['i2c']
+    devices_required += ['altimu']
+    algos_required += ['mahony']
+
+    c_sources += files([
+        'sensor_fusion.c',
     ])
 endif

@@ -9,12 +9,17 @@
 #include <kernel/schedule.h>
 #include <drivers/arm/cm4/systick.h>
 #include <drivers/devices/status_leds.h>
-#include <programs/sensor_read.h>
+#ifdef TASK_EN_SENSOR_READ
+    #include <programs/sensor_read.h>
+#endif
+#ifdef TASK_EN_SENSOR_FUSION
+    #include <programs/sensor_fusion.h>
+#endif
 #ifdef TASK_EN_FLIGHT_CTRL
     #include <programs/flight_ctrl.h>
 #endif
 #ifdef TASK_EN_XPC_RELAY
-#include <programs/xpc_relay_event_loop.h>
+    #include <programs/xpc_relay_event_loop.h>
 #endif
 
 /**
@@ -37,6 +42,12 @@ int init_main(void) {
     process_init(&flight_ctrl_app, &flight_ctrl_main,
                  flight_ctrl_stack, FLIGHT_CTRL_STACK_SIZE, true, false);
     schedule_process(&process_table, &flight_ctrl_app);
+#endif
+
+#ifdef TASK_EN_SENSOR_FUSION
+    process_init(&sensor_fusion_app, &sensor_fusion_main,
+                 sensor_fusion_stack, SENSOR_FUSION_STACK_SIZE, true, false);
+    schedule_process(&process_table, &sensor_fusion_app);
 #endif
     return 0;
 }
