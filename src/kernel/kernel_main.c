@@ -93,9 +93,13 @@ void kernel_main(const char *cmdline) {
 
 #ifdef DEVICE_EN_ALTIMU
     /** ALTIMU INIT **/
+    GREEN_LED_ON();
+    RED_LED_ON();
     altimu_gxl_init(0);
     altimu_mag_init(0);
     altimu_bar_init(0);
+    GREEN_LED_OFF();
+    RED_LED_OFF();
 #endif
 
 #ifdef DEVICE_EN_SERVOS
