@@ -93,17 +93,62 @@ int lrmotor_init() {
 }
 
 int lmotor_set(uint8_t speed) {
+    int errnum = 0;
+
+    /* error checking */
+    if(speed > MAX_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+    else if(speed < MIN_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+
+    /* set the value */
     ftm_ch_duty_set(FTM0_NUM, CH0, speed);
-    return 0;
+
+failout:
+    return errnum;
 }
 
 int rmotor_set(uint8_t speed) {
+    int errnum = 0;
+
+    /* error checking */
+    if(speed > MAX_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+    else if(speed < MIN_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+
+    /* set the value */
     ftm_ch_duty_set(FTM0_NUM, CH1, speed);
-    return 0;
+
+failout:
+    return errnum;
 }
 
 int lrmotor_set(uint8_t speed) {
+    int errnum = 0;
+
+    /* error checking */
+    if(speed > MAX_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+    else if(speed < MIN_MOTOR_PWM) {
+        errnum = -1;
+        goto failout;
+    }
+
+    /* set the value */
     ftm_ch_duty_set(FTM0_NUM, CH0, speed);
     ftm_ch_duty_set(FTM0_NUM, CH1, speed);
-    return 0;
+
+failout:
+    return errnum;
 }

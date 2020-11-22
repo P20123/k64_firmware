@@ -39,21 +39,24 @@ int lrmotor_init();
 
 /**
  * Sets the left motor to a specific speed.
+ * Note: speed is checked to be in the bounds of MIN/MAX_MOTOR_PWM.
  * @param speed A value from MIN_MOTOR_PWM to MAX_MOTOR_PWM.
- * @return 0
+ * @return 0 if no errors, -1 if invalid number.
  */
 int lmotor_set(uint8_t speed);
 
 /**
  * Sets the right motor to a specific speed.
+ * Note: speed is checked to be in the bounds of MIN/MAX_MOTOR_PWM.
  * @param speed A value from MIN_MOTOR_PWM to MAX_MOTOR_PWM.
- * @return 0
+ * @return 0 if no errors, -1 if invalid number.
  */
 int rmotor_set(uint8_t speed);
 
 /**
  * Sets both motors to a specific speed.
+ * Note: speed is checked to be in the bounds of MIN/MAX_MOTOR_PWM.
  * @param speed A value from MIN_MOTOR_PWM to MAX_MOTOR_PWM.
- * @return 0
+ * @return 0 if no errors, -1 if invalid number.
  */
 int lrmotor_set(uint8_t speed);
