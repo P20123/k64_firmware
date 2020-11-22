@@ -9,3 +9,10 @@ if algos_required.contains('mahony')
             'mahony.c',
         ])
 endif
+
+if algos_required.contains('pid')
+        add_project_arguments('-DALGO_EN_PID', language: 'c')
+        c_sources += files([
+            'pid.c',
+        ])
+endif
