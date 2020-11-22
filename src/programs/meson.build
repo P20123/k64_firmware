@@ -34,3 +34,13 @@ if get_variable('applications').contains('xpc_relay')
     ])
     dependencies += [dependency('tinyxpc', fallback: ['tinyxpc', 'dep_relay'])]
 endif
+
+if get_variable('applications').contains('flight_ctrl')
+    add_project_arguments('-DTASK_EN_FLIGHT_CTRL', language: 'c')
+    peripherals_required += ['ftm']
+    devices_required += ['servos', 'motors']
+
+    c_sources += files([
+        'flight_ctrl.c',
+    ])
+endif

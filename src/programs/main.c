@@ -10,6 +10,9 @@
 #include <drivers/arm/cm4/systick.h>
 #include <drivers/devices/status_leds.h>
 #include <programs/sensor_read.h>
+#ifdef TASK_EN_FLIGHT_CTRL
+    #include <programs/flight_ctrl.h>
+#endif
 #ifdef TASK_EN_XPC_RELAY
 #include <programs/xpc_relay_event_loop.h>
 #endif
@@ -28,6 +31,12 @@ int init_main(void) {
     process_init(&xpc_relay_event_loop_app, &xpc_relay_event_loop_main,
             xpc_relay_event_loop_stack, XPC_RELAY_STACK_SIZE, false, false);
     schedule_process(&process_table, &xpc_relay_event_loop_app);
+#endif
+
+#ifdef TASK_EN_FLIGHT_CTRL
+    process_init(&flight_ctrl_app, &flight_ctrl_main,
+                 flight_ctrl_stack, FLIGHT_CTRL_STACK_SIZE, true, false);
+    schedule_process(&process_table, &flight_ctrl_app);
 #endif
     return 0;
 }
