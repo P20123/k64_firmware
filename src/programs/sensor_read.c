@@ -64,9 +64,15 @@ int sensor_read_main(void) {
         gx = (float)(int16_t)((gxl_data[0] | (gxl_data[1] << 8)));
         gy = (float)(int16_t)((gxl_data[2] | (gxl_data[3] << 8)));
         gz = (float)(int16_t)((gxl_data[4] | (gxl_data[5] << 8)));
-        gx = ((gx * GYRO_SCALE) * DEG2RAD_SCALE) - goffx;
-        gy = ((gy * GYRO_SCALE) * DEG2RAD_SCALE) - goffy;
-        gz = ((gz * GYRO_SCALE) * DEG2RAD_SCALE) - goffz;
+        gx = (gx * GYRO_SCALE) - goffx;
+        gy = (gy * GYRO_SCALE) - goffy;
+        gz = (gz * GYRO_SCALE) - goffz;
+//        gx *= DEG2RAD_SCALE;
+//        gy *= DEG2RAD_SCALE;
+//        gz *= DEG2RAD_SCALE;
+//        gx = ((gx * GYRO_SCALE) * DEG2RAD_SCALE) - goffx;
+//        gy = ((gy * GYRO_SCALE) * DEG2RAD_SCALE) - goffy;
+//        gz = ((gz * GYRO_SCALE) * DEG2RAD_SCALE) - goffz;
 
         /* accel data */
         ax = (float)(int16_t)((gxl_data[6] | (gxl_data[7] << 8)));
@@ -75,7 +81,12 @@ int sensor_read_main(void) {
         ax = (ax * ACC_SCALE) - aoffx;
         ay = (ay * ACC_SCALE) - aoffy;
         az = (az * ACC_SCALE) - aoffz;
+//        //FIXME
+        ax *= 9.81f;
+        ay *= 9.81f;
+        az *= 9.81f;
 
+#ifndef IMU_CALIBRATION_MODE
         /* accelerometer filter */
         filt_ax += A_FF_X * (ax - filt_ax);
         filt_ay += A_FF_Y * (ay - filt_ay);
@@ -83,6 +94,7 @@ int sensor_read_main(void) {
         ax = filt_ax;
         ay = filt_ay;
         az = filt_az;
+#endif
 
         /* mag data */
         mx = (float)(int16_t)((mag_data[0] | (mag_data[1] << 8)));

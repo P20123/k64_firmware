@@ -1,46 +1,26 @@
-//=====================================================================================================
-// MahonyAHRS.c
-//=====================================================================================================
-//
-// Madgwick's implementation of Mayhony's AHRS algorithm.
-// See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
-//
-// Date         Author          Notes
-// 29/09/2011   SOH Madgwick    Initial release
-// 02/10/2011   SOH Madgwick    Optimised for reduced CPU load
-//
-//=====================================================================================================
-
-//---------------------------------------------------------------------------------------------------
-// Header files
-
-#include "algo/mahony.h"
+#include "algo/ahrs.h"
 #include <math.h>
 
-//---------------------------------------------------------------------------------------------------
-// Definitions
-
-#define sampleFreq  2304.0f          // sample frequency in Hz
-#define Kp 90.0f
-#define Ki 30.5f
-#define twoKpDef    (2.0f * Kp) // 2 * proportional gain
-#define twoKiDef    (2.0f * Ki) // 2 * integral gain
-
-//---------------------------------------------------------------------------------------------------
-// Variable definitions
-
+/**********
+ * GLOBALS
+ **********/
 volatile float twoKp;                                   // 2 * proportional gain (Kp)
 volatile float twoKi;                                   // 2 * integral gain (Ki)
 volatile float q0, q1, q2, q3;                          // quaternion of sensor frame relative to auxiliary frame
+volatile float roll, pitch, yaw; 
 volatile float integralFBx, integralFBy, integralFBz;   // integral error terms scaled by Ki
 
-//====================================================================================================
-// Functions
-void MahonyAHRSinit() {
+/************
+ * FUNCTIONS
+ ************/
+void ahrs_init() {
     q0 = 1.0f;
     q1 = 0.0f;
     q2 = 0.0f;
     q3 = 0.0f;
+    roll = 0.0f;
+    pitch = 0.0f;
+    yaw = 0.0f;
     twoKp = twoKpDef;
     twoKi = twoKiDef;
     integralFBx = 0.0f;
@@ -48,10 +28,32 @@ void MahonyAHRSinit() {
     integralFBz = 0.0f;
 }
 
+void rpy_update() {
+    float q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;  
+
+    // Auxiliary variables to avoid repeated arithmetic
+    q0q1 = q0 * q1;
+    q0q2 = q0 * q2;
+    q0q3 = q0 * q3;
+    q1q1 = q1 * q1;
+    q1q2 = q1 * q2;
+    q1q3 = q1 * q3;
+    q2q2 = q2 * q2;
+    q2q3 = q2 * q3;
+    q3q3 = q3 * q3;   
+
+    roll = atan2f(2 * (q0q1 + q2q3), 1 - (2 * (q1q1 + q2q2)));
+    pitch = asinf(2 * (q0q2 - q1q3));
+    yaw = atan2f(2 * (q0q3 + q1q2), 1 - (2 * (q2q2 + q3q3)));
+    roll *= 57.2957f;
+    pitch *= 57.2957f;
+    yaw *= 57.2957f;
+}
+
 //---------------------------------------------------------------------------------------------------
 // AHRS algorithm update
 
-void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
+void ahrs_update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
     float recipNorm;
     float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;  
     float hx, hy, bx, bz;
@@ -61,7 +63,7 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 
     // Use IMU algorithm if magnetometer measurement invalid (avoids NaN in magnetometer normalisation)
     if((fabs(mx) < 0.00001f) && (fabs(my) < 0.00001f) && (fabs(mz) < 0.00001f)) {
-        MahonyAHRSupdateIMU(gx, gy, gz, ax, ay, az);
+        ahrs_update_imu(gx, gy, gz, ax, ay, az);
         return;
     }
 
@@ -155,7 +157,7 @@ void MahonyAHRSupdate(float gx, float gy, float gz, float ax, float ay, float az
 //---------------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void MahonyAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
+void ahrs_update_imu(float gx, float gy, float gz, float ax, float ay, float az) {
     float recipNorm;
     float halfvx, halfvy, halfvz;
     float halfex, halfey, halfez;

@@ -21,6 +21,13 @@
 #define GXL_WHOAMI_VALUE 0x69u
 #define GXL_STATUS_REG_GDA_MASK 0x02u
 #define GXL_ERROR_NOT_FOUND -3
+/* CTRL1_XL values */
+#define GXL_ODRXL_VALUE 0x80             
+#define GXL_FSXL_VALUE 0x0C
+#define GXL_BWXL_VALUE 0x00
+/* CTRL2_G values */
+#define GXL_ODRG_VALUE 0x80
+#define GXL_FSG_VALUE 0x04
 
 /* AltIMU-10 v5 Magnetometer Constants */
 #define ALTIMU_MAG_SADDR 0b00011110
@@ -30,10 +37,19 @@
 #define MAG_CTRL_REG3 0x22u
 #define MAG_CTRL_REG4 0x23u
 #define MAG_STATUS_REG 0x27u
-#define MAG_OUT_X_L 0x28u               /* First Data Register */
+#define MAG_OUT_X_L 0x28u               
+/* First Data Register */
 #define MAG_WHOAMI_VALUE 0x3Du
 #define MAG_STATUS_REG_ZYXDA_MASK 0x08u
 #define MAG_ERROR_NOT_FOUND -4
+/* CTRL_REG1 value */
+#define MAG_TEMPEN_VALUE 0x80
+#define MAG_OM_VALUE 0x60
+#define MAG_DO_VALUE 0x00
+#define MAG_FAST_ODR_VALUE 0x02
+/* CTRL_REG2 value */
+#define MAG_FS_VALUE 0x40
+
 
 /* AltIMU-10 v5 Barometer Constants */
 #define ALTIMU_BAR_SADDR 0b01011101

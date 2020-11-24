@@ -39,8 +39,10 @@ i2c_seq_t GXL_POKE_SEQ[] = {
 static i2c_seq_t GXL_C1C2_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_GXL_SADDR),
     I2C_WRITE_REG(GXL_CTRL1_XL),
-    I2C_WRITE_VALUE(0x60u),         /* CTRL1_XL value */
-    I2C_WRITE_VALUE(0x60u)          /* CTRL2_G value */
+    /* CTRL1_XL value */
+    I2C_WRITE_VALUE(GXL_ODRXL_VALUE | GXL_FSXL_VALUE | GXL_BWXL_VALUE),
+    /* CTRL2_G value */
+    I2C_WRITE_VALUE(GXL_ODRG_VALUE | GXL_FSG_VALUE)          
 };
 
 /* Gyroscope and Accelerometer CTRL9_XL and CTRL10_C Sequence (4) */
@@ -104,8 +106,11 @@ i2c_seq_t MAG_POKE_SEQ[] = {
 static i2c_seq_t MAG_C1TO4_SEQ[] = {
     I2C_WRITE_ADDR(ALTIMU_MAG_SADDR),
     I2C_WRITE_REG(MAG_CTRL_REG1 | STM_AUTO_INCR_MASK),
-    I2C_WRITE_VALUE(0x42u),     /* CTRL_REG1 value */
-    I2C_WRITE_VALUE(0x40u),     /* CTRL_REG2 value */
+    /* CTRL_REG1 value */
+    I2C_WRITE_VALUE(MAG_TEMPEN_VALUE | MAG_OM_VALUE |
+                    MAG_DO_VALUE | MAG_FAST_ODR_VALUE),     
+    /* CTRL_REG2 value */
+    I2C_WRITE_VALUE(MAG_FS_VALUE),     
     I2C_WRITE_VALUE(0x00u),     /* CTRL_REG3 value */
     I2C_WRITE_VALUE(0x08u)      /* CTRL_REG4 value */
 };

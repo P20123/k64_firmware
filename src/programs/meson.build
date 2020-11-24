@@ -11,6 +11,7 @@ else
     c_sources += files([
         'main.c'
     ])
+    peripherals_required += ['uart']
     devices_required += ['status_leds']
 endif
 
@@ -52,7 +53,7 @@ if get_variable('applications').contains('sensor_fusion')
     add_project_arguments('-DTASK_EN_SENSOR_FUSION', language: 'c')
     peripherals_required += ['i2c']
     devices_required += ['altimu']
-    algos_required += ['mahony']
+    algos_required += ['madgwick']
 
     c_sources += files([
         'sensor_fusion.c',

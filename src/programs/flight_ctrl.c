@@ -15,7 +15,7 @@ int flight_ctrl_main(void) {
     for(;;) {
         lservo_set_scaled(0);
         rservo_set_scaled(0);
-        lmotor_set(45);
+        lrmotor_set(45);
         yield();
     }
     return 0;

@@ -10,6 +10,13 @@ if algos_required.contains('mahony')
         ])
 endif
 
+if algos_required.contains('madgwick')
+        add_project_arguments('-DALGO_EN_MADGWICK', language: 'c')
+        c_sources += files([
+            'madgwick.c',
+        ])
+endif
+
 if algos_required.contains('pid')
         add_project_arguments('-DALGO_EN_PID', language: 'c')
         c_sources += files([
